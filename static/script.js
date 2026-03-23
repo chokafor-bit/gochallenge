@@ -422,7 +422,7 @@ function openDaily() {
 
 // ─── Header Update ────────────────────────────────────────────────────────────
 function updateHeader() {
-  document.getElementById('hdr-name').textContent = player?.name || 'Gopher';
+  document.getElementById('hdr-name').textContent = player?.name || 'World';
   document.getElementById('hdr-pts').textContent = (player?.points||0) + ' pts';
   document.getElementById('hdr-lvl').textContent = 'Lv.' + (player?.level||1);
 }
