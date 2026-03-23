@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GoChallenge — Master Go Through Code</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg:      #0d0f14;
+  --bg2:     #13161e;
+  --bg3:     #1a1e28;
+  --border:  #2a2f3f;
+  --text:    #e8eaf0;
+  --text2:   #9aa3bb;
+  --text3:   #6b7594;
+  --accent:  #00d4aa;
+  --accent2: #00b891;
+  --blue:    #5b8ef0;
+  --purple:  #a78bfa;
+  --yellow:  #fbbf24;
+  --red:     #f87171;
+  --green:   #4ade80;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Space Grotesk', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Grid canvas background ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,170,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,170,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Glow orbs ── */
+.orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  animation: orbFade 1.2s ease forwards;
+}
+.orb1 { width: 600px; height: 600px; background: rgba(0,212,170,0.07); top: -200px; right: -100px; animation-delay: 0.2s; }
+.orb2 { width: 400px; height: 400px; background: rgba(91,142,240,0.07); bottom: -100px; left: -100px; animation-delay: 0.4s; }
+.orb3 { width: 300px; height: 300px; background: rgba(167,139,250,0.05); top: 40%; left: 30%; animation-delay: 0.6s; }
+
+@keyframes orbFade { to { opacity: 1; } }
+
+/* ── Nav ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 48px;
+  height: 64px;
+  background: rgba(13,15,20,0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  opacity: 0;
+  transform: translateY(-10px);
+  animation: slideDown 0.6s ease 0.1s forwards;
+}
+
+@keyframes slideDown { to { opacity: 1; transform: translateY(0); } }
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 20px;
+  color: var(--accent);
+  letter-spacing: -0.5px;
+  text-decoration: none;
+}
+.nav-logo span { font-size: 24px; }
+
+.nav-links { display: flex; align-items: center; gap: 32px; }
+.nav-links a {
+  font-size: 13px;
+  color: var(--text2);
+  text-decoration: none;
+  transition: color 0.2s;
+  font-weight: 500;
+}
+.nav-links a:hover { color: var(--text); }
+
+.nav-cta {
+  background: var(--accent);
+  color: var(--bg) !important;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  transition: all 0.2s !important;
+}
+.nav-cta:hover { background: var(--accent2) !important; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,212,170,0.3); }
+
+/* ── Hero ── */
+.hero {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 120px 24px 80px;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0,212,170,0.08);
+  border: 1px solid rgba(0,212,170,0.2);
+  border-radius: 100px;
+  padding: 6px 16px;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent);
+  margin-bottom: 32px;
+  opacity: 0;
+  animation: fadeUp 0.6s ease 0.3s forwards;
+}
+.hero-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 1.5s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+.hero-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(52px, 8vw, 96px);
+  line-height: 1.0;
+  letter-spacing: -3px;
+  margin-bottom: 24px;
+  opacity: 0;
+  animation: fadeUp 0.7s ease 0.4s forwards;
+}
+
+.hero-title .go { color: var(--accent); position: relative; }
+.hero-title .go::after {
+  content: '';
+  position: absolute;
+  bottom: 4px; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+  border-radius: 2px;
+}
+
+.hero-sub {
+  font-size: clamp(16px, 2vw, 20px);
+  color: var(--text2);
+  max-width: 540px;
+  line-height: 1.7;
+  margin-bottom: 48px;
+  font-weight: 400;
+  opacity: 0;
+  animation: fadeUp 0.7s ease 0.5s forwards;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  opacity: 0;
+  animation: fadeUp 0.7s ease 0.6s forwards;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--accent);
+  color: var(--bg);
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 14px 32px;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: all 0.2s;
+  box-shadow: 0 0 0 0 rgba(0,212,170,0.4);
+}
+.btn-primary:hover {
+  background: var(--accent2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0,212,170,0.35);
+}
+.btn-primary:active { transform: translateY(0); }
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  color: var(--text2);
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 500;
+  font-size: 15px;
+  padding: 14px 28px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.btn-secondary:hover { border-color: var(--text3); color: var(--text); }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── Code window preview ── */
+.hero-code {
+  margin-top: 72px;
+  width: 100%;
+  max-width: 680px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.8s forwards;
+}
+
+.code-window {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  text-align: left;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.5);
+}
+
+.code-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+}
+.dot { width: 12px; height: 12px; border-radius: 50%; }
+.dot-r { background: #f87171; }
+.dot-y { background: #fbbf24; }
+.dot-g { background: #4ade80; }
+.code-filename { margin-left: 8px; font-size: 12px; font-family: 'JetBrains Mono', monospace; color: var(--text3); }
+
+.code-body {
+  padding: 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.8;
+  overflow-x: auto;
+}
+
+.ln { color: var(--text3); user-select: none; margin-right: 20px; font-size: 11px; }
+.kw  { color: var(--accent); font-weight: 700; }
+.fn  { color: var(--purple); }
+.str { color: #a8e6cf; }
+.cm  { color: var(--text3); font-style: italic; }
+.num { color: var(--yellow); }
+.typ { color: var(--blue); }
+
+/* Typewriter cursor on last line */
+.cursor {
+  display: inline-block;
+  width: 2px; height: 14px;
+  background: var(--accent);
+  margin-left: 2px;
+  vertical-align: middle;
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+/* ── Stats strip ── */
+.stats-strip {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  padding: 0 24px 80px;
+  opacity: 0;
+  animation: fadeUp 0.7s ease 1s forwards;
+}
+
+.stat-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 48px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+.stat-pill:first-child { border-left: 1px solid var(--border); border-radius: 12px 0 0 12px; }
+.stat-pill:last-child { border-radius: 0 12px 12px 0; }
+
+.stat-pill-val {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 36px;
+  color: var(--accent);
+  letter-spacing: -1px;
+  line-height: 1;
+}
+.stat-pill-lbl {
+  font-size: 12px;
+  color: var(--text3);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+/* ── Features ── */
+.features {
+  position: relative;
+  z-index: 1;
+  padding: 80px 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(32px, 5vw, 52px);
+  letter-spacing: -1.5px;
+  line-height: 1.1;
+  margin-bottom: 64px;
+}
+.section-title span { color: var(--accent); }
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.feature-card {
+  background: var(--bg);
+  padding: 36px;
+  transition: background 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.feature-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0,212,170,0.04), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.feature-card:hover { background: var(--bg2); }
+.feature-card:hover::before { opacity: 1; }
+
+.feature-icon {
+  font-size: 32px;
+  margin-bottom: 16px;
+  display: block;
+}
+
+.feature-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  margin-bottom: 10px;
+  letter-spacing: -0.3px;
+}
+
+.feature-desc {
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.7;
+}
+
+/* ── Difficulty bands ── */
+.difficulties {
+  position: relative;
+  z-index: 1;
+  padding: 80px 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.diff-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 64px;
+}
+
+.diff-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 32px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.diff-card:hover { transform: translateY(-4px); }
+.diff-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.diff-card.easy::after  { background: var(--green); box-shadow: 0 0 20px var(--green); }
+.diff-card.medium::after { background: var(--yellow); box-shadow: 0 0 20px var(--yellow); }
+.diff-card.hard::after  { background: var(--red); box-shadow: 0 0 20px var(--red); }
+.diff-card:hover { box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+
+.diff-label {
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 12px;
+}
+.easy  .diff-label { color: var(--green); }
+.medium .diff-label { color: var(--yellow); }
+.hard  .diff-label { color: var(--red); }
+
+.diff-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
+}
+
+.diff-desc { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 20px; }
+
+.diff-examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.diff-tag {
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  padding: 3px 10px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.04);
+  color: var(--text3);
+  border: 1px solid var(--border);
+}
+
+/* ── Achievement showcase ── */
+.achievements-section {
+  position: relative;
+  z-index: 1;
+  padding: 80px 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.ach-scroll {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 48px;
+}
+
+.ach-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 8px 18px 8px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+  cursor: default;
+}
+.ach-pill:hover {
+  border-color: var(--accent);
+  background: rgba(0,212,170,0.06);
+  transform: translateY(-2px);
+}
+.ach-pill-icon { font-size: 18px; }
+
+/* ── CTA banner ── */
+.cta-banner {
+  position: relative;
+  z-index: 1;
+  margin: 40px 24px 80px;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+  background: var(--bg2);
+  border: 1px solid rgba(0,212,170,0.2);
+  border-radius: 20px;
+  padding: 64px;
+  text-align: center;
+  overflow: hidden;
+}
+.cta-banner::before {
+  content: '';
+  position: absolute;
+  top: -100px; left: 50%;
+  transform: translateX(-50%);
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(0,212,170,0.08), transparent 70%);
+  pointer-events: none;
+}
+
+.cta-banner h2 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(28px, 4vw, 48px);
+  letter-spacing: -1.5px;
+  margin-bottom: 16px;
+}
+.cta-banner p {
+  color: var(--text2);
+  font-size: 16px;
+  margin-bottom: 40px;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+
+/* ── Footer ── */
+footer {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid var(--border);
+  padding: 32px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text3);
+  font-size: 13px;
+}
+.footer-logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  color: var(--text2);
+  font-size: 15px;
+}
+
+/* ── Scroll animations ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .diff-cards { grid-template-columns: 1fr; }
+  .stat-pill { padding: 20px 24px; }
+  .stat-pill-val { font-size: 28px; }
+  .cta-banner { padding: 40px 24px; }
+  footer { flex-direction: column; gap: 12px; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<!-- Nav -->
+<nav>
+  <a href="welcome.html" class="nav-logo"><span>🐹</span> GoChallenge</a>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#challenges">Challenges</a>
+    <a href="#achievements">Achievements</a>
+    <a href="index_preview.html" class="nav-cta">Start Coding →</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-badge">100 challenges · Monaco editor · Real Go execution</div>
+
+  <h1 class="hero-title">
+    Master<br><span class="go">Go</span> Through<br>Code
+  </h1>
+
+  <p class="hero-sub">
+    Level up your Go skills with 100 hand-crafted coding challenges — from basics to concurrency, generics, and beyond.
+  </p>
+
+  <div class="hero-actions">
+    <a href="index_preview.html" class="btn-primary">▶ Start Coding</a>
+    <a href="#features" class="btn-secondary">See how it works ↓</a>
+  </div>
+
+  <!-- Code window -->
+  <div class="hero-code">
+    <div class="code-window">
+      <div class="code-titlebar">
+        <div class="dot dot-r"></div>
+        <div class="dot dot-y"></div>
+        <div class="dot dot-g"></div>
+        <span class="code-filename">challenge_42.go</span>
+      </div>
+      <div class="code-body">
+        <div><span class="ln">1</span><span class="cm">// #42 — Remove Duplicates · Easy · 70pts</span></div>
+        <div><span class="ln">2</span></div>
+        <div><span class="ln">3</span><span class="kw">package</span> <span class="typ">main</span></div>
+        <div><span class="ln">4</span></div>
+        <div><span class="ln">5</span><span class="kw">import</span> <span class="str">"fmt"</span></div>
+        <div><span class="ln">6</span></div>
+        <div><span class="ln">7</span><span class="kw">func</span> <span class="fn">removeDups</span>(nums []<span class="typ">int</span>) []<span class="typ">int</span> {</div>
+        <div><span class="ln">8</span>&nbsp;&nbsp;seen := <span class="kw">make</span>(<span class="kw">map</span>[<span class="typ">int</span>]<span class="typ">bool</span>)</div>
+        <div><span class="ln">9</span>&nbsp;&nbsp;result := []<span class="typ">int</span>{}</div>
+        <div><span class="ln">10</span>&nbsp;&nbsp;<span class="kw">for</span> _, v := <span class="kw">range</span> nums {</div>
+        <div><span class="ln">11</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> !seen[v] {</div>
+        <div><span class="ln">12</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;seen[v] = <span class="kw">true</span></div>
+        <div><span class="ln">13</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result = <span class="kw">append</span>(result, v)</div>
+        <div><span class="ln">14</span>&nbsp;&nbsp;&nbsp;&nbsp;}</div>
+        <div><span class="ln">15</span>&nbsp;&nbsp;}</div>
+        <div><span class="ln">16</span>&nbsp;&nbsp;<span class="kw">return</span> result</div>
+        <div><span class="ln">17</span>}</div>
+        <div><span class="ln">18</span></div>
+        <div><span class="ln">19</span><span class="kw">func</span> <span class="fn">main</span>() {</div>
+        <div><span class="ln">20</span>&nbsp;&nbsp;fmt.<span class="fn">Println</span>(<span class="fn">removeDups</span>([]<span class="typ">int</span>{<span class="num">1</span>,<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>,<span class="num">3</span>,<span class="num">4</span>}))<span class="cursor"></span></div>
+        <div><span class="ln">21</span>}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats -->
+<div class="stats-strip">
+  <div class="stat-pill">
+    <div class="stat-pill-val">100</div>
+    <div class="stat-pill-lbl">Challenges</div>
+  </div>
+  <div class="stat-pill">
+    <div class="stat-pill-val">39</div>
+    <div class="stat-pill-lbl">Achievements</div>
+  </div>
+  <div class="stat-pill">
+    <div class="stat-pill-val">12</div>
+    <div class="stat-pill-lbl">Categories</div>
+  </div>
+  <div class="stat-pill">
+    <div class="stat-pill-val">3</div>
+    <div class="stat-pill-lbl">Difficulty tiers</div>
+  </div>
+</div>
+
+<!-- Features -->
+<section class="features" id="features">
+  <div class="reveal">
+    <div class="section-label">// features</div>
+    <h2 class="section-title">Everything you need to<br><span>level up</span></h2>
+  </div>
+  <div class="features-grid reveal">
+    <div class="feature-card">
+      <span class="feature-icon">⚡</span>
+      <div class="feature-title">Monaco Editor</div>
+      <div class="feature-desc">The same editor powering VS Code — with Go syntax highlighting, autocomplete, and a custom GoChallenge dark theme.</div>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🏃</span>
+      <div class="feature-title">Real Execution</div>
+      <div class="feature-desc">Your code runs on a real Go runtime. No sandboxed interpreters — actual <code style="color:var(--accent);font-family:monospace">go run</code> on the server.</div>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">⏱️</span>
+      <div class="feature-title">Speed Bonuses</div>
+      <div class="feature-desc">Solve fast and earn bonus points. Every challenge has a time-bonus window — the quicker you crack it, the more you earn.</div>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🏆</span>
+      <div class="feature-title">Leaderboard</div>
+      <div class="feature-desc">Compete with other Gophers. Climb the global leaderboard and show off your level, streak, and point total.</div>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🎖️</span>
+      <div class="feature-title">39 Achievements</div>
+      <div class="feature-desc">Unlock badges for speed runs, streaks, categories, time of day, and more. Hidden challenges await the truly dedicated.</div>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">💡</span>
+      <div class="feature-title">Progressive Hints</div>
+      <div class="feature-desc">Stuck? Reveal hints one at a time without spoiling the answer. Each challenge has tailored hints to nudge you forward.</div>
+    </div>
+  </div>
+</section>
+
+<!-- Difficulty tiers -->
+<section class="difficulties" id="challenges">
+  <div class="reveal">
+    <div class="section-label">// challenges</div>
+    <h2 class="section-title">Three tiers,<br><span>one journey</span></h2>
+  </div>
+  <div class="diff-cards reveal">
+    <div class="diff-card easy">
+      <div class="diff-label">Easy</div>
+      <div class="diff-title">Build your foundation</div>
+      <div class="diff-desc">Core Go syntax, standard library basics, and fundamental patterns. Perfect for getting comfortable with the language.</div>
+      <div class="diff-examples">
+        <span class="diff-tag">basics</span>
+        <span class="diff-tag">strings</span>
+        <span class="diff-tag">loops</span>
+        <span class="diff-tag">slices</span>
+        <span class="diff-tag">maps</span>
+        <span class="diff-tag">recursion</span>
+      </div>
+    </div>
+    <div class="diff-card medium">
+      <div class="diff-label">Medium</div>
+      <div class="diff-title">Go deeper</div>
+      <div class="diff-desc">Interfaces, goroutines, channels, error handling, and idiomatic Go patterns. Where real understanding is built.</div>
+      <div class="diff-examples">
+        <span class="diff-tag">interfaces</span>
+        <span class="diff-tag">concurrency</span>
+        <span class="diff-tag">closures</span>
+        <span class="diff-tag">errors</span>
+        <span class="diff-tag">json</span>
+        <span class="diff-tag">sorting</span>
+      </div>
+    </div>
+    <div class="diff-card hard">
+      <div class="diff-label">Hard</div>
+      <div class="diff-title">Push your limits</div>
+      <div class="diff-desc">LRU caches, worker pools, generics, BFS/DFS, pipelines, and advanced design patterns. For the Gophers who mean business.</div>
+      <div class="diff-examples">
+        <span class="diff-tag">generics</span>
+        <span class="diff-tag">algorithms</span>
+        <span class="diff-tag">patterns</span>
+        <span class="diff-tag">data-structures</span>
+        <span class="diff-tag">web</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Achievements -->
+<section class="achievements-section" id="achievements">
+  <div class="reveal">
+    <div class="section-label">// achievements</div>
+    <h2 class="section-title">Earn your <span>badges</span></h2>
+  </div>
+  <div class="ach-scroll reveal">
+    <div class="ach-pill"><span class="ach-pill-icon">🩸</span> First Blood</div>
+    <div class="ach-pill"><span class="ach-pill-icon">⚡</span> Speed Demon</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🌩️</span> Lightning Fingers</div>
+    <div class="ach-pill"><span class="ach-pill-icon">👁️</span> Blink</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🔥</span> On Fire</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🚀</span> Unstoppable</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🌈</span> Godlike</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🐹</span> Gopher</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🦫</span> Master Gopher</div>
+    <div class="ach-pill"><span class="ach-pill-icon">👑</span> Legend</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🎯</span> Centurion</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🏆</span> 1000 Points</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🌟</span> Grand Master</div>
+    <div class="ach-pill"><span class="ach-pill-icon">💎</span> Perfectionist</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🥚</span> Hard Boiled</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🪨</span> No Easy Way</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🔀</span> Concurrency King</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🧵</span> String Wizard</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🧠</span> Algo Master</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🦸</span> Generic Hero</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🌐</span> Web Dev</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🦉</span> Night Owl</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🐦</span> Early Bird</div>
+    <div class="ach-pill"><span class="ach-pill-icon">📅</span> Daily Warrior</div>
+    <div class="ach-pill"><span class="ach-pill-icon">💪</span> Comeback Kid</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🙈</span> Hint Free</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🦜</span> Gopher Polyglot</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🎁</span> Collector</div>
+    <div class="ach-pill"><span class="ach-pill-icon">✂️</span> Minimalist</div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-banner reveal">
+  <h2>Ready to become a<br>better Gopher?</h2>
+  <p>100 challenges. Real code. No excuses. Start from zero or jump straight to the hard stuff.</p>
+  <a href="index_preview.html" class="btn-primary" style="font-size:16px; padding:16px 40px;">▶ Start Coding Now</a>
+</div>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-logo">🐹 GoChallenge</div>
+  <div>Built for Gophers, by Gophers</div>
+  <div><a href="index_preview.html" style="color:var(--accent);text-decoration:none;">Open App →</a></div>
+</footer>
+
+<script>
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

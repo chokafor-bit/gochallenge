@@ -1,0 +1,2069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GoChallenge — Master Go Through Code</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg:      #0d0f14;
+  --bg2:     #13161e;
+  --bg3:     #1a1e28;
+  --border:  #2a2f3f;
+  --text:    #e8eaf0;
+  --text2:   #9aa3bb;
+  --text3:   #6b7594;
+  --accent:  #00d4aa;
+  --accent2: #00b891;
+  --blue:    #5b8ef0;
+  --purple:  #a78bfa;
+  --yellow:  #fbbf24;
+  --red:     #f87171;
+  --green:   #4ade80;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Space Grotesk', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Grid canvas background ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,170,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,170,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Glow orbs ── */
+.orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  animation: orbFade 1.2s ease forwards;
+}
+.orb1 { width: 600px; height: 600px; background: rgba(0,212,170,0.07); top: -200px; right: -100px; animation-delay: 0.2s; }
+.orb2 { width: 400px; height: 400px; background: rgba(91,142,240,0.07); bottom: -100px; left: -100px; animation-delay: 0.4s; }
+.orb3 { width: 300px; height: 300px; background: rgba(167,139,250,0.05); top: 40%; left: 30%; animation-delay: 0.6s; }
+
+@keyframes orbFade { to { opacity: 1; } }
+
+/* ── Nav ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 48px;
+  height: 64px;
+  background: rgba(13,15,20,0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  opacity: 0;
+  transform: translateY(-10px);
+  animation: slideDown 0.6s ease 0.1s forwards;
+}
+
+@keyframes slideDown { to { opacity: 1; transform: translateY(0); } }
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 20px;
+  color: var(--accent);
+  letter-spacing: -0.5px;
+  text-decoration: none;
+}
+.nav-logo span { font-size: 24px; }
+
+.nav-links { display: flex; align-items: center; gap: 32px; }
+.nav-links a {
+  font-size: 13px;
+  color: var(--text2);
+  text-decoration: none;
+  transition: color 0.2s;
+  font-weight: 500;
+}
+.nav-links a:hover { color: var(--text); }
+
+.nav-cta {
+  background: var(--accent);
+  color: var(--bg) !important;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  transition: all 0.2s !important;
+}
+.nav-cta:hover { background: var(--accent2) !important; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,212,170,0.3); }
+
+/* ── Hero ── */
+.hero {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 120px 24px 80px;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0,212,170,0.08);
+  border: 1px solid rgba(0,212,170,0.2);
+  border-radius: 100px;
+  padding: 6px 16px;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent);
+  margin-bottom: 32px;
+  opacity: 0;
+  animation: fadeUp 0.6s ease 0.3s forwards;
+}
+.hero-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 1.5s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+.hero-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(52px, 8vw, 96px);
+  line-height: 1.0;
+  letter-spacing: -3px;
+  margin-bottom: 24px;
+  opacity: 0;
+  animation: fadeUp 0.7s ease 0.4s forwards;
+}
+
+.hero-title .go { color: var(--accent); position: relative; }
+.hero-title .go::after {
+  content: '';
+  position: absolute;
+  bottom: 4px; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+  border-radius: 2px;
+}
+
+.hero-sub {
+  font-size: clamp(16px, 2vw, 20px);
+  color: var(--text2);
+  max-width: 540px;
+  line-height: 1.7;
+  margin-bottom: 48px;
+  font-weight: 400;
+  opacity: 0;
+  animation: fadeUp 0.7s ease 0.5s forwards;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  opacity: 0;
+  animation: fadeUp 0.7s ease 0.6s forwards;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--accent);
+  color: var(--bg);
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 14px 32px;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: all 0.2s;
+  box-shadow: 0 0 0 0 rgba(0,212,170,0.4);
+}
+.btn-primary:hover {
+  background: var(--accent2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0,212,170,0.35);
+}
+.btn-primary:active { transform: translateY(0); }
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  color: var(--text2);
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 500;
+  font-size: 15px;
+  padding: 14px 28px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.btn-secondary:hover { border-color: var(--text3); color: var(--text); }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── Code window preview ── */
+.hero-code {
+  margin-top: 72px;
+  width: 100%;
+  max-width: 680px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.8s forwards;
+}
+
+.code-window {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  text-align: left;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.5);
+}
+
+.code-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+}
+.dot { width: 12px; height: 12px; border-radius: 50%; }
+.dot-r { background: #f87171; }
+.dot-y { background: #fbbf24; }
+.dot-g { background: #4ade80; }
+.code-filename { margin-left: 8px; font-size: 12px; font-family: 'JetBrains Mono', monospace; color: var(--text3); }
+
+.code-body {
+  padding: 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.8;
+  overflow-x: auto;
+}
+
+.ln { color: var(--text3); user-select: none; margin-right: 20px; font-size: 11px; }
+.kw  { color: var(--accent); font-weight: 700; }
+.fn  { color: var(--purple); }
+.str { color: #a8e6cf; }
+.cm  { color: var(--text3); font-style: italic; }
+.num { color: var(--yellow); }
+.typ { color: var(--blue); }
+
+/* Typewriter cursor on last line */
+.cursor {
+  display: inline-block;
+  width: 2px; height: 14px;
+  background: var(--accent);
+  margin-left: 2px;
+  vertical-align: middle;
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+/* ── Stats strip ── */
+.stats-strip {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  padding: 0 24px 80px;
+  opacity: 0;
+  animation: fadeUp 0.7s ease 1s forwards;
+}
+
+.stat-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 48px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+.stat-pill:first-child { border-left: 1px solid var(--border); border-radius: 12px 0 0 12px; }
+.stat-pill:last-child { border-radius: 0 12px 12px 0; }
+
+.stat-pill-val {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 36px;
+  color: var(--accent);
+  letter-spacing: -1px;
+  line-height: 1;
+}
+.stat-pill-lbl {
+  font-size: 12px;
+  color: var(--text3);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+/* ── Features ── */
+.features {
+  position: relative;
+  z-index: 1;
+  padding: 80px 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(32px, 5vw, 52px);
+  letter-spacing: -1.5px;
+  line-height: 1.1;
+  margin-bottom: 64px;
+}
+.section-title span { color: var(--accent); }
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.feature-card {
+  background: var(--bg);
+  padding: 36px;
+  transition: background 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.feature-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0,212,170,0.04), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.feature-card:hover { background: var(--bg2); }
+.feature-card:hover::before { opacity: 1; }
+
+.feature-icon {
+  font-size: 32px;
+  margin-bottom: 16px;
+  display: block;
+}
+
+.feature-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  margin-bottom: 10px;
+  letter-spacing: -0.3px;
+}
+
+.feature-desc {
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.7;
+}
+
+/* ── Difficulty bands ── */
+.difficulties {
+  position: relative;
+  z-index: 1;
+  padding: 80px 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.diff-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 64px;
+}
+
+.diff-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 32px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.diff-card:hover { transform: translateY(-4px); }
+.diff-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.diff-card.easy::after  { background: var(--green); box-shadow: 0 0 20px var(--green); }
+.diff-card.medium::after { background: var(--yellow); box-shadow: 0 0 20px var(--yellow); }
+.diff-card.hard::after  { background: var(--red); box-shadow: 0 0 20px var(--red); }
+.diff-card:hover { box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+
+.diff-label {
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 12px;
+}
+.easy  .diff-label { color: var(--green); }
+.medium .diff-label { color: var(--yellow); }
+.hard  .diff-label { color: var(--red); }
+
+.diff-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
+}
+
+.diff-desc { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 20px; }
+
+.diff-examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.diff-tag {
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  padding: 3px 10px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.04);
+  color: var(--text3);
+  border: 1px solid var(--border);
+}
+
+/* ── Achievement showcase ── */
+.achievements-section {
+  position: relative;
+  z-index: 1;
+  padding: 80px 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.ach-scroll {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 48px;
+}
+
+.ach-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 8px 18px 8px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+  cursor: default;
+}
+.ach-pill:hover {
+  border-color: var(--accent);
+  background: rgba(0,212,170,0.06);
+  transform: translateY(-2px);
+}
+.ach-pill-icon { font-size: 18px; }
+
+/* ── CTA banner ── */
+.cta-banner {
+  position: relative;
+  z-index: 1;
+  margin: 40px 24px 80px;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+  background: var(--bg2);
+  border: 1px solid rgba(0,212,170,0.2);
+  border-radius: 20px;
+  padding: 64px;
+  text-align: center;
+  overflow: hidden;
+}
+.cta-banner::before {
+  content: '';
+  position: absolute;
+  top: -100px; left: 50%;
+  transform: translateX(-50%);
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(0,212,170,0.08), transparent 70%);
+  pointer-events: none;
+}
+
+.cta-banner h2 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(28px, 4vw, 48px);
+  letter-spacing: -1.5px;
+  margin-bottom: 16px;
+}
+.cta-banner p {
+  color: var(--text2);
+  font-size: 16px;
+  margin-bottom: 40px;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+
+/* ── Footer ── */
+footer {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid var(--border);
+  padding: 32px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text3);
+  font-size: 13px;
+}
+.footer-logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  color: var(--text2);
+  font-size: 15px;
+}
+
+/* ── Scroll animations ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .diff-cards { grid-template-columns: 1fr; }
+  .stat-pill { padding: 20px 24px; }
+  .stat-pill-val { font-size: 28px; }
+  .cta-banner { padding: 40px 24px; }
+  footer { flex-direction: column; gap: 12px; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<!-- Nav -->
+<nav>
+  <a href="welcome.html" class="nav-logo"><span>🐹</span> GoChallenge</a>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#challenges">Challenges</a>
+    <a href="#achievements">Achievements</a>
+    <a href="index_preview.html" class="nav-cta">Start Coding →</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-badge">100 challenges · Monaco editor · Real Go execution</div>
+
+  <h1 class="hero-title">
+    Master<br><span class="go">Go</span> Through<br>Code
+  </h1>
+
+  <p class="hero-sub">
+    Level up your Go skills with 100 hand-crafted coding challenges — from basics to concurrency, generics, and beyond.
+  </p>
+
+  <div class="hero-actions">
+    <a href="index_preview.html" class="btn-primary">▶ Start Coding</a>
+    <a href="#features" class="btn-secondary">See how it works ↓</a>
+  </div>
+
+  <!-- Code window -->
+  <div class="hero-code">
+    <div class="code-window">
+      <div class="code-titlebar">
+        <div class="dot dot-r"></div>
+        <div class="dot dot-y"></div>
+        <div class="dot dot-g"></div>
+        <span class="code-filename">challenge_42.go</span>
+      </div>
+      <div class="code-body">
+        <div><span class="ln">1</span><span class="cm">// #42 — Remove Duplicates · Easy · 70pts</span></div>
+        <div><span class="ln">2</span></div>
+        <div><span class="ln">3</span><span class="kw">package</span> <span class="typ">main</span></div>
+        <div><span class="ln">4</span></div>
+        <div><span class="ln">5</span><span class="kw">import</span> <span class="str">"fmt"</span></div>
+        <div><span class="ln">6</span></div>
+        <div><span class="ln">7</span><span class="kw">func</span> <span class="fn">removeDups</span>(nums []<span class="typ">int</span>) []<span class="typ">int</span> {</div>
+        <div><span class="ln">8</span>&nbsp;&nbsp;seen := <span class="kw">make</span>(<span class="kw">map</span>[<span class="typ">int</span>]<span class="typ">bool</span>)</div>
+        <div><span class="ln">9</span>&nbsp;&nbsp;result := []<span class="typ">int</span>{}</div>
+        <div><span class="ln">10</span>&nbsp;&nbsp;<span class="kw">for</span> _, v := <span class="kw">range</span> nums {</div>
+        <div><span class="ln">11</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> !seen[v] {</div>
+        <div><span class="ln">12</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;seen[v] = <span class="kw">true</span></div>
+        <div><span class="ln">13</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result = <span class="kw">append</span>(result, v)</div>
+        <div><span class="ln">14</span>&nbsp;&nbsp;&nbsp;&nbsp;}</div>
+        <div><span class="ln">15</span>&nbsp;&nbsp;}</div>
+        <div><span class="ln">16</span>&nbsp;&nbsp;<span class="kw">return</span> result</div>
+        <div><span class="ln">17</span>}</div>
+        <div><span class="ln">18</span></div>
+        <div><span class="ln">19</span><span class="kw">func</span> <span class="fn">main</span>() {</div>
+        <div><span class="ln">20</span>&nbsp;&nbsp;fmt.<span class="fn">Println</span>(<span class="fn">removeDups</span>([]<span class="typ">int</span>{<span class="num">1</span>,<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>,<span class="num">3</span>,<span class="num">4</span>}))<span class="cursor"></span></div>
+        <div><span class="ln">21</span>}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats -->
+<div class="stats-strip">
+  <div class="stat-pill">
+    <div class="stat-pill-val">100</div>
+    <div class="stat-pill-lbl">Challenges</div>
+  </div>
+  <div class="stat-pill">
+    <div class="stat-pill-val">39</div>
+    <div class="stat-pill-lbl">Achievements</div>
+  </div>
+  <div class="stat-pill">
+    <div class="stat-pill-val">12</div>
+    <div class="stat-pill-lbl">Categories</div>
+  </div>
+  <div class="stat-pill">
+    <div class="stat-pill-val">3</div>
+    <div class="stat-pill-lbl">Difficulty tiers</div>
+  </div>
+</div>
+
+<!-- Features -->
+<section class="features" id="features">
+  <div class="reveal">
+    <div class="section-label">// features</div>
+    <h2 class="section-title">Everything you need to<br><span>level up</span></h2>
+  </div>
+  <div class="features-grid reveal">
+    <div class="feature-card">
+      <span class="feature-icon">⚡</span>
+      <div class="feature-title">Monaco Editor</div>
+      <div class="feature-desc">The same editor powering VS Code — with Go syntax highlighting, autocomplete, and a custom GoChallenge dark theme.</div>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🏃</span>
+      <div class="feature-title">Real Execution</div>
+      <div class="feature-desc">Your code runs on a real Go runtime. No sandboxed interpreters — actual <code style="color:var(--accent);font-family:monospace">go run</code> on the server.</div>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">⏱️</span>
+      <div class="feature-title">Speed Bonuses</div>
+      <div class="feature-desc">Solve fast and earn bonus points. Every challenge has a time-bonus window — the quicker you crack it, the more you earn.</div>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🏆</span>
+      <div class="feature-title">Leaderboard</div>
+      <div class="feature-desc">Compete with other Gophers. Climb the global leaderboard and show off your level, streak, and point total.</div>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🎖️</span>
+      <div class="feature-title">39 Achievements</div>
+      <div class="feature-desc">Unlock badges for speed runs, streaks, categories, time of day, and more. Hidden challenges await the truly dedicated.</div>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">💡</span>
+      <div class="feature-title">Progressive Hints</div>
+      <div class="feature-desc">Stuck? Reveal hints one at a time without spoiling the answer. Each challenge has tailored hints to nudge you forward.</div>
+    </div>
+  </div>
+</section>
+
+<!-- Difficulty tiers -->
+<section class="difficulties" id="challenges">
+  <div class="reveal">
+    <div class="section-label">// challenges</div>
+    <h2 class="section-title">Three tiers,<br><span>one journey</span></h2>
+  </div>
+  <div class="diff-cards reveal">
+    <div class="diff-card easy">
+      <div class="diff-label">Easy</div>
+      <div class="diff-title">Build your foundation</div>
+      <div class="diff-desc">Core Go syntax, standard library basics, and fundamental patterns. Perfect for getting comfortable with the language.</div>
+      <div class="diff-examples">
+        <span class="diff-tag">basics</span>
+        <span class="diff-tag">strings</span>
+        <span class="diff-tag">loops</span>
+        <span class="diff-tag">slices</span>
+        <span class="diff-tag">maps</span>
+        <span class="diff-tag">recursion</span>
+      </div>
+    </div>
+    <div class="diff-card medium">
+      <div class="diff-label">Medium</div>
+      <div class="diff-title">Go deeper</div>
+      <div class="diff-desc">Interfaces, goroutines, channels, error handling, and idiomatic Go patterns. Where real understanding is built.</div>
+      <div class="diff-examples">
+        <span class="diff-tag">interfaces</span>
+        <span class="diff-tag">concurrency</span>
+        <span class="diff-tag">closures</span>
+        <span class="diff-tag">errors</span>
+        <span class="diff-tag">json</span>
+        <span class="diff-tag">sorting</span>
+      </div>
+    </div>
+    <div class="diff-card hard">
+      <div class="diff-label">Hard</div>
+      <div class="diff-title">Push your limits</div>
+      <div class="diff-desc">LRU caches, worker pools, generics, BFS/DFS, pipelines, and advanced design patterns. For the Gophers who mean business.</div>
+      <div class="diff-examples">
+        <span class="diff-tag">generics</span>
+        <span class="diff-tag">algorithms</span>
+        <span class="diff-tag">patterns</span>
+        <span class="diff-tag">data-structures</span>
+        <span class="diff-tag">web</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Achievements -->
+<section class="achievements-section" id="achievements">
+  <div class="reveal">
+    <div class="section-label">// achievements</div>
+    <h2 class="section-title">Earn your <span>badges</span></h2>
+  </div>
+  <div class="ach-scroll reveal">
+    <div class="ach-pill"><span class="ach-pill-icon">🩸</span> First Blood</div>
+    <div class="ach-pill"><span class="ach-pill-icon">⚡</span> Speed Demon</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🌩️</span> Lightning Fingers</div>
+    <div class="ach-pill"><span class="ach-pill-icon">👁️</span> Blink</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🔥</span> On Fire</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🚀</span> Unstoppable</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🌈</span> Godlike</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🐹</span> Gopher</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🦫</span> Master Gopher</div>
+    <div class="ach-pill"><span class="ach-pill-icon">👑</span> Legend</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🎯</span> Centurion</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🏆</span> 1000 Points</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🌟</span> Grand Master</div>
+    <div class="ach-pill"><span class="ach-pill-icon">💎</span> Perfectionist</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🥚</span> Hard Boiled</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🪨</span> No Easy Way</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🔀</span> Concurrency King</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🧵</span> String Wizard</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🧠</span> Algo Master</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🦸</span> Generic Hero</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🌐</span> Web Dev</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🦉</span> Night Owl</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🐦</span> Early Bird</div>
+    <div class="ach-pill"><span class="ach-pill-icon">📅</span> Daily Warrior</div>
+    <div class="ach-pill"><span class="ach-pill-icon">💪</span> Comeback Kid</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🙈</span> Hint Free</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🦜</span> Gopher Polyglot</div>
+    <div class="ach-pill"><span class="ach-pill-icon">🎁</span> Collector</div>
+    <div class="ach-pill"><span class="ach-pill-icon">✂️</span> Minimalist</div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-banner reveal">
+  <h2>Ready to become a<br>better Gopher?</h2>
+  <p>100 challenges. Real code. No excuses. Start from zero or jump straight to the hard stuff.</p>
+  <a href="index_preview.html" class="btn-primary" style="font-size:16px; padding:16px 40px;">▶ Start Coding Now</a>
+</div>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-logo">🐹 GoChallenge</div>
+  <div>Built for Gophers, by Gophers</div>
+  <div><a href="index_preview.html" style="color:var(--accent);text-decoration:none;">Open App →</a></div>
+</footer>
+
+<script>
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GoChallenge — Master Go Through Code</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+<style>
+:root {
+  --bg: #0d0f14;
+  --bg2: #13161e;
+  --bg3: #1a1e28;
+  --bg4: #222736;
+  --border: #2a2f3f;
+  --border2: #353c52;
+  --text: #e8eaf0;
+  --text2: #9aa3bb;
+  --text3: #6b7594;
+  --accent: #00d4aa;
+  --accent2: #00b891;
+  --blue: #5b8ef0;
+  --purple: #a78bfa;
+  --yellow: #fbbf24;
+  --red: #f87171;
+  --green: #4ade80;
+  --orange: #fb923c;
+  --glow: 0 0 20px rgba(0, 212, 170, 0.15);
+  --glow-strong: 0 0 40px rgba(0, 212, 170, 0.3);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Space Grotesk', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Layout ───────────────────────────────────── */
+#app { display: flex; flex-direction: column; height: 100vh; }
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 20px;
+  height: 52px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  z-index: 100;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--accent);
+  letter-spacing: -0.5px;
+}
+
+.logo-icon { font-size: 22px; }
+
+.top-spacer { flex: 1; }
+
+.player-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.player-badge:hover { border-color: var(--accent); }
+
+.player-name { font-size: 13px; font-weight: 600; }
+.player-pts { font-size: 12px; color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+.player-lvl { font-size: 11px; background: var(--accent); color: var(--bg); border-radius: 4px; padding: 1px 6px; font-weight: 700; }
+
+.nav-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text2);
+  padding: 5px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: inherit;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.nav-btn:hover, .nav-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(0,212,170,0.05); }
+
+.main-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Sidebar ──────────────────────────────────── */
+.sidebar {
+  width: 280px;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.sidebar-header {
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.sidebar-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text2); }
+
+.filter-row {
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px;
+  flex-shrink: 0;
+}
+
+.filter-btn {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text3);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(0,212,170,0.08); }
+
+.q-search {
+  margin: 0 12px 8px;
+  padding: 7px 10px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 12px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.q-search:focus { border-color: var(--accent); }
+
+.q-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 8px;
+}
+.q-list::-webkit-scrollbar { width: 4px; }
+.q-list::-webkit-scrollbar-track { background: transparent; }
+.q-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.q-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-bottom: 2px;
+  border: 1px solid transparent;
+}
+.q-item:hover { background: var(--bg3); border-color: var(--border); }
+.q-item.active { background: var(--bg4); border-color: var(--accent); }
+.q-item.solved { opacity: 0.6; }
+
+.q-num {
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text3);
+  width: 24px;
+  flex-shrink: 0;
+}
+
+.q-info { flex: 1; min-width: 0; }
+.q-title { font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.q-meta { font-size: 10px; color: var(--text3); margin-top: 1px; }
+
+.diff-badge {
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-weight: 700;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.diff-easy { background: rgba(74,222,128,0.15); color: var(--green); }
+.diff-medium { background: rgba(251,191,36,0.15); color: var(--yellow); }
+.diff-hard { background: rgba(248,113,113,0.15); color: var(--red); }
+
+.solved-check { color: var(--green); font-size: 12px; flex-shrink: 0; }
+
+/* ── Editor Area ──────────────────────────────── */
+.editor-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.q-header {
+  padding: 12px 20px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.q-header-left { flex: 1; min-width: 0; }
+.q-header-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.q-header-desc { font-size: 13px; color: var(--text2); line-height: 1.5; }
+
+.q-header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+
+.pts-badge {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.pts-val { color: var(--accent); font-weight: 700; }
+
+.timer-display {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 2px;
+}
+.timer-display.warning { color: var(--yellow); }
+.timer-display.danger { color: var(--red); animation: pulse 0.5s ease-in-out infinite alternate; }
+
+@keyframes pulse { from { opacity: 1; } to { opacity: 0.6; } }
+
+.hints-row {
+  display: flex;
+  gap: 6px;
+  padding: 6px 20px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.hint-label { font-size: 11px; color: var(--text3); }
+.hint-chip {
+  font-size: 11px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 8px;
+  cursor: pointer;
+  color: var(--text2);
+  transition: all 0.15s;
+}
+.hint-chip:hover { border-color: var(--blue); color: var(--blue); }
+.hint-chip.revealed { color: var(--text); border-color: var(--border2); background: var(--bg4); cursor: default; }
+
+.daily-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 20px;
+  background: rgba(251,191,36,0.06);
+  border-bottom: 1px solid rgba(251,191,36,0.2);
+  font-size: 12px;
+  color: var(--yellow);
+  flex-shrink: 0;
+}
+
+.editor-wrapper {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+#editor { width: 100%; height: 100%; }
+
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.run-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.3px;
+}
+.run-btn:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: var(--glow); }
+.run-btn:active { transform: translateY(0); }
+.run-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.reset-btn {
+  padding: 7px 14px;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text2);
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.reset-btn:hover { border-color: var(--red); color: var(--red); }
+
+.lint-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  margin-left: auto;
+}
+.lint-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+.lint-dot.error { background: var(--red); animation: pulse 0.8s ease-in-out infinite alternate; }
+.lint-dot.checking { background: var(--yellow); animation: pulse 0.5s ease-in-out infinite alternate; }
+
+/* ── Output Panel ─────────────────────────────── */
+.output-panel {
+  height: 180px;
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.output-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.output-tab {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text2);
+  transition: all 0.15s;
+}
+.output-tab.active { background: var(--bg4); color: var(--text); }
+
+.output-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.output-content::-webkit-scrollbar { width: 4px; }
+.output-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.out-success { color: var(--green); }
+.out-error { color: var(--red); }
+.out-info { color: var(--text2); }
+.out-pts { color: var(--accent); font-weight: 600; }
+
+/* ── Panels (Leaderboard, Achievements) ──────── */
+.panel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.panel-overlay.open { opacity: 1; pointer-events: all; }
+
+.panel {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  width: 600px;
+  max-width: 95vw;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  transform: scale(0.95);
+  transition: transform 0.2s;
+  overflow: hidden;
+}
+.panel-overlay.open .panel { transform: scale(1); }
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.panel-title { font-size: 16px; font-weight: 700; flex: 1; }
+.panel-close {
+  width: 28px; height: 28px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text2);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.panel-close:hover { border-color: var(--red); color: var(--red); }
+
+.panel-body { flex: 1; overflow-y: auto; padding: 16px 20px; }
+.panel-body::-webkit-scrollbar { width: 4px; }
+.panel-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* Leaderboard */
+.lb-entry {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  transition: border-color 0.15s;
+}
+.lb-entry:hover { border-color: var(--border2); }
+.lb-entry.top1 { border-color: #fbbf24; background: rgba(251,191,36,0.05); }
+.lb-entry.top2 { border-color: #9ca3af; background: rgba(156,163,175,0.05); }
+.lb-entry.top3 { border-color: #b45309; background: rgba(180,83,9,0.05); }
+
+.lb-rank { font-size: 13px; font-weight: 700; width: 28px; text-align: center; flex-shrink: 0; }
+.lb-name { flex: 1; font-size: 13px; font-weight: 600; }
+.lb-pts { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--accent); }
+.lb-lvl { font-size: 11px; background: var(--bg4); border-radius: 4px; padding: 1px 7px; color: var(--text2); }
+.lb-streak { font-size: 11px; color: var(--orange); }
+
+/* Achievements */
+.ach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+.ach-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  transition: all 0.2s;
+}
+.ach-card.unlocked { border-color: var(--accent); background: rgba(0,212,170,0.05); }
+.ach-card.locked { opacity: 0.4; filter: grayscale(1); }
+.ach-icon { font-size: 28px; }
+.ach-name { font-size: 12px; font-weight: 700; }
+.ach-desc { font-size: 10px; color: var(--text3); }
+
+/* Toast */
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  min-width: 260px;
+  max-width: 360px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  animation: slideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+.toast.success { border-color: var(--green); }
+.toast.error { border-color: var(--red); }
+.toast.achievement { border-color: var(--yellow); background: rgba(251,191,36,0.08); }
+
+.toast-icon { font-size: 20px; flex-shrink: 0; }
+.toast-body { flex: 1; }
+.toast-title { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+.toast-msg { font-size: 12px; color: var(--text2); }
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes slideOut {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(120%); opacity: 0; }
+}
+
+/* Profile modal */
+.profile-form { display: flex; flex-direction: column; gap: 12px; }
+.form-label { font-size: 12px; color: var(--text2); margin-bottom: 4px; }
+.form-input {
+  width: 100%;
+  padding: 9px 12px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.form-input:focus { border-color: var(--accent); }
+
+.save-btn {
+  padding: 9px 20px;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  align-self: flex-start;
+}
+.save-btn:hover { background: var(--accent2); }
+
+/* Stats row */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.stat-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+}
+.stat-val { font-size: 22px; font-weight: 700; color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+.stat-lbl { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+/* Empty state */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text3);
+  gap: 10px;
+  font-size: 13px;
+}
+.empty-icon { font-size: 40px; opacity: 0.5; }
+
+/* Category colors */
+.cat-badge {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: var(--bg4);
+  color: var(--text3);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border2); }
+
+/* Responsive */
+@media (max-width: 700px) {
+  .sidebar { width: 220px; }
+}
+
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="logo">
+      <span class="logo-icon">🐹</span>
+      GoChallenge
+    </div>
+    <button class="nav-btn" id="btn-daily" onclick="openDaily()">📅 Daily</button>
+    <button class="nav-btn" onclick="openLeaderboard()">🏆 Leaderboard</button>
+    <button class="nav-btn" onclick="openAchievements()">🎖 Achievements</button>
+    <div class="top-spacer"></div>
+    <div class="player-badge" onclick="openProfile()">
+      <span class="player-lvl" id="hdr-lvl">1</span>
+      <span class="player-name" id="hdr-name">Gopher</span>
+      <span class="player-pts" id="hdr-pts">0 pts</span>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main-content">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">Challenges</span>
+        <span id="solved-count" style="margin-left:auto;font-size:11px;color:var(--text3)">0/100</span>
+      </div>
+      <div class="filter-row">
+        <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+        <button class="filter-btn" onclick="setFilter('easy',this)">Easy</button>
+        <button class="filter-btn" onclick="setFilter('medium',this)">Med</button>
+        <button class="filter-btn" onclick="setFilter('hard',this)">Hard</button>
+      </div>
+      <input class="q-search" id="q-search" placeholder="Search challenges…" oninput="renderList()">
+      <div class="q-list" id="q-list"></div>
+    </div>
+
+    <!-- Editor Area -->
+    <div class="editor-area">
+      <div class="daily-banner" id="daily-banner" style="display:none">
+        ⭐ This is today's Daily Challenge! Solve it for <strong>+100 bonus points</strong>
+      </div>
+
+      <div class="q-header" id="q-header">
+        <div class="q-header-left">
+          <div class="q-header-title" id="q-title">Select a Challenge</div>
+          <div class="q-header-desc" id="q-desc">Choose a challenge from the left sidebar to begin coding.</div>
+        </div>
+        <div class="q-header-right">
+          <div class="pts-badge"><span class="pts-val" id="q-pts">-</span> pts</div>
+          <div class="timer-display" id="timer">00:00</div>
+        </div>
+      </div>
+
+      <div class="hints-row" id="hints-row" style="display:none">
+        <span class="hint-label">💡 Hints:</span>
+        <span id="hints-container"></span>
+      </div>
+
+      <div class="editor-wrapper">
+        <div id="editor"></div>
+      </div>
+
+      <div class="editor-toolbar">
+        <button class="run-btn" id="run-btn" onclick="runCode()" disabled>
+          <span>▶</span> Run Code
+        </button>
+        <button class="reset-btn" onclick="resetCode()">↺ Reset</button>
+        <div class="lint-status">
+          <div class="lint-dot" id="lint-dot"></div>
+          <span id="lint-text" style="color:var(--text3);font-size:11px">Ready</span>
+        </div>
+      </div>
+
+      <div class="output-panel">
+        <div class="output-header">
+          <div class="output-tab active" onclick="showTab('output',this)">Output</div>
+          <div class="output-tab" onclick="showTab('errors',this)">Errors</div>
+        </div>
+        <div class="output-content" id="output-content">
+          <span class="out-info">// Output will appear here after running your code</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Leaderboard Panel -->
+<div class="panel-overlay" id="lb-panel">
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">🏆 Leaderboard</div>
+      <button class="panel-close" onclick="closePanel('lb-panel')">✕</button>
+    </div>
+    <div class="panel-body" id="lb-body">Loading…</div>
+  </div>
+</div>
+
+<!-- Achievements Panel -->
+<div class="panel-overlay" id="ach-panel">
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">🎖 Achievements</div>
+      <button class="panel-close" onclick="closePanel('ach-panel')">✕</button>
+    </div>
+    <div class="panel-body" id="ach-body">Loading…</div>
+  </div>
+</div>
+
+<!-- Profile Panel -->
+<div class="panel-overlay" id="profile-panel">
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">👤 Profile</div>
+      <button class="panel-close" onclick="closePanel('profile-panel')">✕</button>
+    </div>
+    <div class="panel-body">
+      <div class="stats-row" id="profile-stats"></div>
+      <div class="profile-form">
+        <div>
+          <div class="form-label">Display Name</div>
+          <input class="form-input" id="name-input" placeholder="Enter your name" maxlength="20">
+        </div>
+        <button class="save-btn" onclick="saveName()">Save Name</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+
+<script>
+const QUESTIONS = [{"id": 1, "title": "Hello, Gopher!", "difficulty": "easy", "category": "basics", "points": 50, "timeBonus": 30, "description": "Write a Go program that prints `Hello, Gopher!` to the console.", "template": "package main\n\nimport \"fmt\"\n\nfunc main() {\n\t// Your code here\n}", "hints": ["Use fmt.Println()", "Don't forget the package declaration"]}, {"id": 2, "title": "Sum Two Numbers", "difficulty": "easy", "category": "basics", "points": 60, "timeBonus": 45, "description": "Write a function `add(a, b int) int` that returns the sum of two integers. Then print `add(3, 7)` in main.", "template": "package main\n\nimport \"fmt\"\n\nfunc add(a, b int) int {\n\t// Your code here\n}\n\nfunc main() {\n\tfmt.Println(add(3, 7))\n}", "hints": ["Use the + operator", "Return the result"]}, {"id": 3, "title": "FizzBuzz", "difficulty": "easy", "category": "loops", "points": 70, "timeBonus": 60, "description": "Print numbers 1 to 20. For multiples of 3 print `Fizz`, multiples of 5 print `Buzz`, multiples of both print `FizzBuzz`.", "template": "package main\n\nimport \"fmt\"\n\nfunc main() {\n\tfor i := 1; i <= 20; i++ {\n\t\t// Your code here\n\t}\n}", "hints": ["Use the % (modulo) operator", "Check FizzBuzz before Fizz and Buzz"]}, {"id": 4, "title": "Reverse a String", "difficulty": "easy", "category": "strings", "points": 80, "timeBonus": 60, "description": "Write a function `reverse(s string) string` that reverses a string. Print the reverse of `golang`.", "template": "package main\n\nimport \"fmt\"\n\nfunc reverse(s string) string {\n\t// Your code here\n}\n\nfunc main() {\n\tfmt.Println(reverse(\"golang\"))\n}", "hints": ["Convert string to rune slice", "Iterate backwards"]}, {"id": 5, "title": "Fibonacci", "difficulty": "easy", "category": "recursion", "points": 90, "timeBonus": 90, "description": "Write a recursive function `fib(n int) int` that returns the nth Fibonacci number. Print fib(10).", "template": "package main\n\nimport \"fmt\"\n\nfunc fib(n int) int {\n\t// Your code here\n}\n\nfunc main() {\n\tfmt.Println(fib(10))\n}", "hints": ["Base cases: fib(0)=0, fib(1)=1", "fib(n) = fib(n-1) + fib(n-2)"]}, {"id": 6, "title": "Count Vowels", "difficulty": "easy", "category": "strings", "points": 70, "timeBonus": 45, "description": "Write `countVowels(s string) int` that counts vowels (a,e,i,o,u) in a string. Print countVowels(\"hello world\").", "template": "package main\n\nimport \"fmt\"\n\nfunc countVowels(s string) int {\n\t// Your code here\n}\n\nfunc main() {\n\tfmt.Println(countVowels(\"hello world\"))\n}", "hints": ["Loop over characters", "Check if char is in \"aeiou\""]}, {"id": 7, "title": "Is Palindrome", "difficulty": "easy", "category": "strings", "points": 80, "timeBonus": 60, "description": "Write `isPalindrome(s string) bool`. Print results for \"racecar\" and \"golang\".", "template": "package main\n\nimport \"fmt\"\n\nfunc isPalindrome(s string) bool {\n\t// Your code here\n}\n\nfunc main() {\n\tfmt.Println(isPalindrome(\"racecar\"))\n\tfmt.Println(isPalindrome(\"golang\"))\n}", "hints": ["Compare string to its reverse"]}, {"id": 8, "title": "Factorial", "difficulty": "easy", "category": "recursion", "points": 70, "timeBonus": 45, "description": "Write `factorial(n int) int` using recursion. Print factorial(5).", "template": "package main\n\nimport \"fmt\"\n\nfunc factorial(n int) int {\n\t// Your code here\n}\n\nfunc main() {\n\tfmt.Println(factorial(5))\n}", "hints": ["Base case: n <= 1 returns 1"]}, {"id": 9, "title": "Max in Slice", "difficulty": "easy", "category": "slices", "points": 75, "timeBonus": 60, "description": "Write `maxSlice(nums []int) int` that returns the maximum value. Print maxSlice([]int{3,1,4,1,5,9,2,6}).", "template": "package main\n\nimport \"fmt\"\n\nfunc maxSlice(nums []int) int {\n\t// Your code here\n}\n\nfunc main() {\n\tfmt.Println(maxSlice([]int{3, 1, 4, 1, 5, 9, 2, 6}))\n}", "hints": ["Start with first element as max", "Loop and compare"]}, {"id": 10, "title": "Word Count Map", "difficulty": "easy", "category": "maps", "points": 85, "timeBonus": 75, "description": "Write `wordCount(s string) map[string]int` that counts word occurrences. Print the result for \"go is fun go is great\".", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"strings\"\n)\n\nfunc wordCount(s string) map[string]int {\n\t// Your code here\n}\n\nfunc main() {\n\tfmt.Println(wordCount(\"go is fun go is great\"))\n}", "hints": ["Use strings.Split", "Increment map[word]++"]}, {"id": 11, "title": "Stack Implementation", "difficulty": "medium", "category": "data-structures", "points": 120, "timeBonus": 120, "description": "Implement a Stack using a struct with Push, Pop, and IsEmpty methods. Demonstrate by pushing 1,2,3 and popping all.", "template": "package main\n\nimport \"fmt\"\n\ntype Stack struct {\n\t// Your fields here\n}\n\nfunc (s *Stack) Push(val int) {\n\t// Your code\n}\n\nfunc (s *Stack) Pop() (int, bool) {\n\t// Your code\n}\n\nfunc (s *Stack) IsEmpty() bool {\n\t// Your code\n}\n\nfunc main() {\n\ts := &Stack{}\n\ts.Push(1)\n\ts.Push(2)\n\ts.Push(3)\n\tfor !s.IsEmpty() {\n\t\tval, _ := s.Pop()\n\t\tfmt.Println(val)\n\t}\n}", "hints": ["Use a slice as backing store", "Pop returns value and ok bool"]}, {"id": 12, "title": "Goroutine Hello", "difficulty": "medium", "category": "concurrency", "points": 130, "timeBonus": 90, "description": "Launch 5 goroutines each printing their index. Use a WaitGroup to wait for all to finish.", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"sync\"\n)\n\nfunc main() {\n\tvar wg sync.WaitGroup\n\t// Launch 5 goroutines\n\twg.Wait()\n}", "hints": ["wg.Add(1) before go func", "defer wg.Done() inside goroutine"]}, {"id": 13, "title": "Channel Pipeline", "difficulty": "medium", "category": "concurrency", "points": 150, "timeBonus": 120, "description": "Create a pipeline: generate numbers 1-5 on a channel, square them on another channel, print results.", "template": "package main\n\nimport \"fmt\"\n\nfunc generate(nums ...int) <-chan int {\n\t// Your code\n}\n\nfunc square(in <-chan int) <-chan int {\n\t// Your code\n}\n\nfunc main() {\n\tfor n := range square(generate(1, 2, 3, 4, 5)) {\n\t\tfmt.Println(n)\n\t}\n}", "hints": ["Create buffered or unbuffered channels", "Close channel when done"]}, {"id": 14, "title": "Error Handling", "difficulty": "medium", "category": "errors", "points": 110, "timeBonus": 90, "description": "Write `divide(a, b float64) (float64, error)` that returns an error if b is 0. Test with divide(10,2) and divide(5,0).", "template": "package main\n\nimport (\n\t\"errors\"\n\t\"fmt\"\n)\n\nfunc divide(a, b float64) (float64, error) {\n\t// Your code\n}\n\nfunc main() {\n\t// Test both cases\n}", "hints": ["Use errors.New() for the error", "Return (0, err) on failure"]}, {"id": 15, "title": "Interface Shape", "difficulty": "medium", "category": "interfaces", "points": 140, "timeBonus": 120, "description": "Define a Shape interface with Area() float64. Implement Circle and Rectangle. Print areas of a circle (r=5) and rectangle (3x4).", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"math\"\n)\n\ntype Shape interface {\n\tArea() float64\n}\n\ntype Circle struct{ Radius float64 }\ntype Rectangle struct{ Width, Height float64 }\n\n// Implement Area() for both\n\nfunc main() {\n\tshapes := []Shape{Circle{5}, Rectangle{3, 4}}\n\tfor _, s := range shapes {\n\t\tfmt.Printf(\"Area: %.2f\\n\", s.Area())\n\t}\n}", "hints": ["Circle area = \u03c0*r\u00b2", "Rectangle area = w*h"]}, {"id": 16, "title": "Closure Counter", "difficulty": "medium", "category": "closures", "points": 110, "timeBonus": 90, "description": "Write `makeCounter()` that returns a function. Each call to the returned function increments and returns a counter.", "template": "package main\n\nimport \"fmt\"\n\nfunc makeCounter() func() int {\n\t// Your code\n}\n\nfunc main() {\n\tcounter := makeCounter()\n\tfmt.Println(counter()) // 1\n\tfmt.Println(counter()) // 2\n\tfmt.Println(counter()) // 3\n}", "hints": ["Use closure over a local variable"]}, {"id": 17, "title": "JSON Marshal", "difficulty": "medium", "category": "json", "points": 120, "timeBonus": 90, "description": "Create a Person struct with Name and Age. Marshal it to JSON and print. Then unmarshal back and print.", "template": "package main\n\nimport (\n\t\"encoding/json\"\n\t\"fmt\"\n)\n\ntype Person struct {\n\tName string ", "hints": ["json.Marshal returns ([]byte, error)", "json.Unmarshal takes &target"]}, {"id": 18, "title": "Variadic Sum", "difficulty": "medium", "category": "functions", "points": 100, "timeBonus": 60, "description": "Write `sum(nums ...int) int` that sums any number of integers. Print sum(1,2,3,4,5).", "template": "package main\n\nimport \"fmt\"\n\nfunc sum(nums ...int) int {\n\t// Your code\n}\n\nfunc main() {\n\tfmt.Println(sum(1, 2, 3, 4, 5))\n}", "hints": ["nums is a slice inside the function"]}, {"id": 19, "title": "Mutex Counter", "difficulty": "medium", "category": "concurrency", "points": 150, "timeBonus": 120, "description": "Use a mutex-protected counter incremented by 100 goroutines (each by 1). Print the final count (should be 100).", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"sync\"\n)\n\ntype SafeCounter struct {\n\tmu    sync.Mutex\n\tcount int\n}\n\nfunc (c *SafeCounter) Inc() {\n\t// Your code\n}\n\nfunc main() {\n\tvar wg sync.WaitGroup\n\tc := &SafeCounter{}\n\tfor i := 0; i < 100; i++ {\n\t\twg.Add(1)\n\t\tgo func() {\n\t\t\tdefer wg.Done()\n\t\t\tc.Inc()\n\t\t}()\n\t}\n\twg.Wait()\n\tfmt.Println(c.count)\n}", "hints": ["Lock before modifying, unlock after"]}, {"id": 20, "title": "Binary Search", "difficulty": "medium", "category": "algorithms", "points": 130, "timeBonus": 100, "description": "Implement `binarySearch(arr []int, target int) int` returning the index or -1. Test with [1,3,5,7,9,11], target=7.", "template": "package main\n\nimport \"fmt\"\n\nfunc binarySearch(arr []int, target int) int {\n\t// Your code\n}\n\nfunc main() {\n\tarr := []int{1, 3, 5, 7, 9, 11}\n\tfmt.Println(binarySearch(arr, 7))  // 3\n\tfmt.Println(binarySearch(arr, 4))  // -1\n}", "hints": ["Use low, high, mid pointers", "Slice must be sorted"]}, {"id": 21, "title": "Linked List", "difficulty": "medium", "category": "data-structures", "points": 140, "timeBonus": 120, "description": "Implement a singly linked list with Append and Print methods. Append 1,2,3 and print.", "template": "package main\n\nimport \"fmt\"\n\ntype Node struct {\n\tVal  int\n\tNext *Node\n}\n\ntype LinkedList struct {\n\tHead *Node\n}\n\nfunc (l *LinkedList) Append(val int) {\n\t// Your code\n}\n\nfunc (l *LinkedList) Print() {\n\t// Your code\n}\n\nfunc main() {\n\tl := &LinkedList{}\n\tl.Append(1)\n\tl.Append(2)\n\tl.Append(3)\n\tl.Print()\n}", "hints": ["Traverse to find tail", "Print until Next is nil"]}, {"id": 22, "title": "Select Statement", "difficulty": "medium", "category": "concurrency", "points": 145, "timeBonus": 100, "description": "Use select to receive from two channels. Send 'ping' on ch1 and 'pong' on ch2, use select to print whichever arrives.", "template": "package main\n\nimport \"fmt\"\n\nfunc main() {\n\tch1 := make(chan string, 1)\n\tch2 := make(chan string, 1)\n\tch1 <- \"ping\"\n\tch2 <- \"pong\"\n\t// Use select to print from one of them\n}", "hints": []}, {"id": 23, "title": "Custom Error Type", "difficulty": "medium", "category": "errors", "points": 120, "timeBonus": 90, "description": "Create a ValidationError struct implementing the error interface. Use it in a validateAge function (age must be 0-150).", "template": "package main\n\nimport \"fmt\"\n\ntype ValidationError struct {\n\tField   string\n\tMessage string\n}\n\nfunc (e *ValidationError) Error() string {\n\t// Your code\n}\n\nfunc validateAge(age int) error {\n\t// Return ValidationError if invalid\n}\n\nfunc main() {\n\tfmt.Println(validateAge(25))\n\tfmt.Println(validateAge(200))\n}", "hints": ["Implement Error() string method", "Return nil for valid input"]}, {"id": 24, "title": "Map Filter", "difficulty": "medium", "category": "functional", "points": 115, "timeBonus": 80, "description": "Write generic-style `filter(nums []int, fn func(int)bool) []int` and `mapSlice(nums []int, fn func(int)int) []int`. Filter evens then double them from [1..10].", "template": "package main\n\nimport \"fmt\"\n\nfunc filter(nums []int, fn func(int) bool) []int {\n\t// Your code\n}\n\nfunc mapSlice(nums []int, fn func(int) int) []int {\n\t// Your code\n}\n\nfunc main() {\n\tnums := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}\n\tevens := filter(nums, func(n int) bool { return n%2 == 0 })\n\tdoubled := mapSlice(evens, func(n int) int { return n * 2 })\n\tfmt.Println(doubled)\n}", "hints": ["Append to result slice when condition is true"]}, {"id": 25, "title": "Stringer Interface", "difficulty": "medium", "category": "interfaces", "points": 110, "timeBonus": 80, "description": "Create a Temperature type (float64). Implement the fmt.Stringer interface to format as `23.5\u00b0C`.", "template": "package main\n\nimport \"fmt\"\n\ntype Temperature float64\n\nfunc (t Temperature) String() string {\n\t// Your code\n}\n\nfunc main() {\n\tt := Temperature(23.5)\n\tfmt.Println(t)\n}", "hints": ["fmt.Sprintf with %.1f format", "Return string with \u00b0C suffix"]}, {"id": 26, "title": "Panic & Recover", "difficulty": "medium", "category": "errors", "points": 130, "timeBonus": 90, "description": "Write `safeDiv(a, b int) (result int, err error)` using defer/recover to catch division by zero panics.", "template": "package main\n\nimport \"fmt\"\n\nfunc safeDiv(a, b int) (result int, err error) {\n\tdefer func() {\n\t\t// recover here\n\t}()\n\treturn a / b, nil\n}\n\nfunc main() {\n\tfmt.Println(safeDiv(10, 2))\n\tfmt.Println(safeDiv(5, 0))\n}", "hints": ["recover() returns the panic value", "Set err = fmt.Errorf(...) in recover"]}, {"id": 27, "title": "Goroutine Fan-Out", "difficulty": "medium", "category": "concurrency", "points": 160, "timeBonus": 120, "description": "Fan out: send jobs 1-5 to workers via channel. 3 workers read from the channel and print 'worker X got job Y'.", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"sync\"\n)\n\nfunc worker(id int, jobs <-chan int, wg *sync.WaitGroup) {\n\tdefer wg.Done()\n\tfor j := range jobs {\n\t\tfmt.Printf(\"worker %d got job %d\\n\", id, j)\n\t}\n}\n\nfunc main() {\n\tjobs := make(chan int, 5)\n\tvar wg sync.WaitGroup\n\t// Launch 3 workers, send 5 jobs\n\twg.Wait()\n}", "hints": ["Close(jobs) after sending so workers finish", "range over channel reads until closed"]}, {"id": 28, "title": "Bubble Sort", "difficulty": "medium", "category": "algorithms", "points": 120, "timeBonus": 90, "description": "Implement bubble sort on a []int. Sort [5,3,8,1,2] and print.", "template": "package main\n\nimport \"fmt\"\n\nfunc bubbleSort(arr []int) {\n\t// Your code\n}\n\nfunc main() {\n\tarr := []int{5, 3, 8, 1, 2}\n\tbubbleSort(arr)\n\tfmt.Println(arr)\n}", "hints": ["Nested loops, swap if arr[j] > arr[j+1]"]}, {"id": 29, "title": "String Builder", "difficulty": "medium", "category": "strings", "points": 100, "timeBonus": 60, "description": "Use strings.Builder to concatenate 'Go' 5 times efficiently. Print the result.", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"strings\"\n)\n\nfunc main() {\n\tvar sb strings.Builder\n\t// Your code\n\tfmt.Println(sb.String())\n}", "hints": ["sb.WriteString() adds to buffer"]}, {"id": 30, "title": "Embed Interface", "difficulty": "medium", "category": "interfaces", "points": 135, "timeBonus": 100, "description": "Define Reader and Writer interfaces, embed them in ReadWriter. Implement all methods on a Buffer struct.", "template": "package main\n\nimport \"fmt\"\n\ntype Reader interface {\n\tRead() string\n}\n\ntype Writer interface {\n\tWrite(s string)\n}\n\ntype ReadWriter interface {\n\tReader\n\tWriter\n}\n\ntype Buffer struct {\n\tdata string\n}\n\n// Implement Read() and Write() on *Buffer\n\nfunc main() {\n\tvar rw ReadWriter = &Buffer{}\n\trw.Write(\"hello gopher\")\n\tfmt.Println(rw.Read())\n}", "hints": ["Buffer.data holds the string"]}, {"id": 31, "title": "Generic Min", "difficulty": "hard", "category": "generics", "points": 200, "timeBonus": 150, "description": "Write a generic `Min[T constraints.Ordered](a, b T) T` function. Print Min(3,5) and Min(\"apple\",\"banana\").", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"golang.org/x/exp/constraints\"\n)\n\nfunc Min[T constraints.Ordered](a, b T) T {\n\t// Your code\n}\n\nfunc main() {\n\tfmt.Println(Min(3, 5))\n\tfmt.Println(Min(\"apple\", \"banana\"))\n}", "hints": ["Use type parameter [T constraints.Ordered]", "Simple if a < b comparison"]}, {"id": 32, "title": "Ticker Timer", "difficulty": "hard", "category": "concurrency", "points": 180, "timeBonus": 120, "description": "Use time.Ticker to print 'tick' every 100ms, stop after 3 ticks using a done channel.", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"time\"\n)\n\nfunc main() {\n\tticker := time.NewTicker(100 * time.Millisecond)\n\tdone := make(chan bool)\n\tcount := 0\n\t// Your code using select\n}", "hints": ["select on ticker.C and done channel", "Send to done after 3 ticks"]}, {"id": 33, "title": "Context Timeout", "difficulty": "hard", "category": "concurrency", "points": 190, "timeBonus": 150, "description": "Use context.WithTimeout (200ms) to cancel a slow operation. Print 'done' if completes, 'timeout' if not.", "template": "package main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"time\"\n)\n\nfunc slowOp(ctx context.Context) error {\n\tselect {\n\tcase <-time.After(500 * time.Millisecond):\n\t\treturn nil\n\tcase <-ctx.Done():\n\t\treturn ctx.Err()\n\t}\n}\n\nfunc main() {\n\tctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)\n\tdefer cancel()\n\t// Your code\n}", "hints": ["Call slowOp(ctx) and check the error"]}, {"id": 34, "title": "LRU Cache", "difficulty": "hard", "category": "data-structures", "points": 250, "timeBonus": 180, "description": "Implement an LRU cache with Get(key) and Put(key,val) with capacity 2. Show eviction behavior.", "template": "package main\n\nimport \"fmt\"\n\ntype LRUCache struct {\n\tcapacity int\n\t// Your fields\n}\n\nfunc NewLRU(cap int) *LRUCache {\n\treturn &LRUCache{capacity: cap}\n}\n\nfunc (c *LRUCache) Get(key int) int {\n\t// Return value or -1\n}\n\nfunc (c *LRUCache) Put(key, val int) {\n\t// Insert and evict LRU if over capacity\n}\n\nfunc main() {\n\tc := NewLRU(2)\n\tc.Put(1, 1)\n\tc.Put(2, 2)\n\tfmt.Println(c.Get(1)) // 1\n\tc.Put(3, 3)           // evicts key 2\n\tfmt.Println(c.Get(2)) // -1\n}", "hints": ["Use map + doubly linked list or ordered map"]}, {"id": 35, "title": "Rate Limiter", "difficulty": "hard", "category": "concurrency", "points": 220, "timeBonus": 160, "description": "Build a token bucket rate limiter allowing 3 requests per second. Simulate 5 requests and show which succeed.", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"time\"\n)\n\ntype RateLimiter struct {\n\ttokens   int\n\tmax      int\n\trefillAt time.Time\n}\n\nfunc NewRateLimiter(max int) *RateLimiter {\n\treturn &RateLimiter{tokens: max, max: max, refillAt: time.Now().Add(time.Second)}\n}\n\nfunc (r *RateLimiter) Allow() bool {\n\t// Your code\n}\n\nfunc main() {\n\trl := NewRateLimiter(3)\n\tfor i := 1; i <= 5; i++ {\n\t\tif rl.Allow() {\n\t\t\tfmt.Printf(\"Request %d: allowed\\n\", i)\n\t\t} else {\n\t\t\tfmt.Printf(\"Request %d: rejected\\n\", i)\n\t\t}\n\t}\n}", "hints": ["Decrement tokens, refill after 1 second"]}, {"id": 36, "title": "Trie Data Structure", "difficulty": "hard", "category": "data-structures", "points": 240, "timeBonus": 180, "description": "Implement a Trie with Insert and Search methods. Insert 'go', 'golang', 'gopher'. Search for 'go', 'goph', 'rust'.", "template": "package main\n\nimport \"fmt\"\n\ntype TrieNode struct {\n\tchildren map[rune]*TrieNode\n\tisEnd    bool\n}\n\ntype Trie struct {\n\troot *TrieNode\n}\n\nfunc NewTrie() *Trie {\n\treturn &Trie{root: &TrieNode{children: make(map[rune]*TrieNode)}}\n}\n\nfunc (t *Trie) Insert(word string) {\n\t// Your code\n}\n\nfunc (t *Trie) Search(word string) bool {\n\t// Your code\n}\n\nfunc main() {\n\tt := NewTrie()\n\tt.Insert(\"go\")\n\tt.Insert(\"golang\")\n\tt.Insert(\"gopher\")\n\tfmt.Println(t.Search(\"go\"))     // true\n\tfmt.Println(t.Search(\"goph\"))   // false\n\tfmt.Println(t.Search(\"rust\"))   // false\n}", "hints": ["Navigate children map by each rune", "isEnd marks a complete word"]}, {"id": 37, "title": "Pipeline with Errors", "difficulty": "hard", "category": "concurrency", "points": 210, "timeBonus": 150, "description": "Build a 3-stage pipeline: generate ints, filter odds, square them. Handle errors gracefully using error channels.", "template": "package main\n\nimport \"fmt\"\n\nfunc generate(nums []int) <-chan int {\n\tch := make(chan int)\n\tgo func() {\n\t\tfor _, n := range nums {\n\t\t\tch <- n\n\t\t}\n\t\tclose(ch)\n\t}()\n\treturn ch\n}\n\nfunc filterOdd(in <-chan int) <-chan int {\n\t// Your code\n}\n\nfunc squareIt(in <-chan int) <-chan int {\n\t// Your code\n}\n\nfunc main() {\n\tfor n := range squareIt(filterOdd(generate([]int{1,2,3,4,5,6,7,8,9,10}))) {\n\t\tfmt.Println(n)\n\t}\n}", "hints": ["Each stage reads from in, writes to out", "Close out channel when in is exhausted"]}, {"id": 38, "title": "Observer Pattern", "difficulty": "hard", "category": "patterns", "points": 200, "timeBonus": 140, "description": "Implement the Observer pattern: EventBus with Subscribe and Publish. Subscribe 2 listeners to 'login' event, publish and show both fire.", "template": "package main\n\nimport \"fmt\"\n\ntype Handler func(data interface{})\n\ntype EventBus struct {\n\t// Your fields\n}\n\nfunc (e *EventBus) Subscribe(event string, handler Handler) {\n\t// Your code\n}\n\nfunc (e *EventBus) Publish(event string, data interface{}) {\n\t// Your code\n}\n\nfunc main() {\n\tbus := &EventBus{}\n\tbus.Subscribe(\"login\", func(d interface{}) { fmt.Println(\"Logger:\", d) })\n\tbus.Subscribe(\"login\", func(d interface{}) { fmt.Println(\"Notifier:\", d) })\n\tbus.Publish(\"login\", \"user123\")\n}", "hints": ["Use map[string][]Handler", "Range over handlers on Publish"]}, {"id": 39, "title": "Worker Pool", "difficulty": "hard", "category": "concurrency", "points": 220, "timeBonus": 160, "description": "Implement a worker pool of 3 goroutines processing 10 jobs. Collect all results and print.", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"sync\"\n)\n\nfunc worker(id int, jobs <-chan int, results chan<- int, wg *sync.WaitGroup) {\n\tdefer wg.Done()\n\tfor j := range jobs {\n\t\tresults <- j * j // square the job\n\t}\n}\n\nfunc main() {\n\tjobs := make(chan int, 10)\n\tresults := make(chan int, 10)\n\tvar wg sync.WaitGroup\n\n\t// Start 3 workers, send 10 jobs, collect results\n\twg.Wait()\n\tclose(results)\n\tfor r := range results {\n\t\tfmt.Println(r)\n\t}\n}", "hints": ["wg.Add(3) for 3 workers", "Close jobs channel after sending all"]}, {"id": 40, "title": "Memoize Function", "difficulty": "hard", "category": "functional", "points": 200, "timeBonus": 140, "description": "Write a `memoize` function that caches results of an expensive int->int function. Demonstrate with fibonacci.", "template": "package main\n\nimport \"fmt\"\n\nfunc memoize(fn func(int) int) func(int) int {\n\tcache := map[int]int{}\n\treturn func(n int) int {\n\t\t// Your code\n\t}\n}\n\nfunc main() {\n\tvar fib func(int) int\n\tfib = memoize(func(n int) int {\n\t\tif n <= 1 {\n\t\t\treturn n\n\t\t}\n\t\treturn fib(n-1) + fib(n-2)\n\t})\n\tfmt.Println(fib(40))\n}", "hints": ["Check cache before calling fn", "Store result in cache after computing"]}, {"id": 41, "title": "String Anagram", "difficulty": "easy", "category": "strings", "points": 75, "timeBonus": 60, "description": "Write `isAnagram(s, t string) bool`. Print isAnagram(\"anagram\", \"nagaram\").", "template": "package main\n\nimport \"fmt\"\n\nfunc isAnagram(s, t string) bool {\n\t// Your code\n}\n\nfunc main() {\n\tfmt.Println(isAnagram(\"anagram\", \"nagaram\"))\n}", "hints": ["Sort both strings", "Or use a frequency map"]}, {"id": 42, "title": "Remove Duplicates", "difficulty": "easy", "category": "slices", "points": 70, "timeBonus": 45, "description": "Write `removeDups(nums []int) []int`. Print removeDups([]int{1,1,2,3,3,4}).", "template": "package main\n\nimport \"fmt\"\n\nfunc removeDups(nums []int) []int {\n\t// Your code\n}\n\nfunc main() {\n\tfmt.Println(removeDups([]int{1,1,2,3,3,4}))\n}", "hints": ["Use a map to track seen values"]}, {"id": 43, "title": "Two Sum", "difficulty": "easy", "category": "algorithms", "points": 85, "timeBonus": 60, "description": "Write `twoSum(nums []int, target int) (int,int)` returning indices. Print twoSum([]int{2,7,11,15}, 9).", "template": "package main\n\nimport \"fmt\"\n\nfunc twoSum(nums []int, target int) (int,int) {\n\t// Your code\n}\n\nfunc main() {\n\ta,b := twoSum([]int{2,7,11,15}, 9)\n\tfmt.Println(a, b)\n}", "hints": ["Use a map: complement -> index"]}, {"id": 44, "title": "Roman to Int", "difficulty": "medium", "category": "strings", "points": 130, "timeBonus": 90, "description": "Write `romanToInt(s string) int`. Convert 'XIV' and 'MCMXCIX'.", "template": "package main\n\nimport \"fmt\"\n\nfunc romanToInt(s string) int {\n\t// Your code\n}\n\nfunc main() {\n\tfmt.Println(romanToInt(\"XIV\"))\n\tfmt.Println(romanToInt(\"MCMXCIX\"))\n}", "hints": ["Map each symbol to value", "If smaller before larger, subtract"]}, {"id": 45, "title": "Valid Brackets", "difficulty": "medium", "category": "data-structures", "points": 120, "timeBonus": 90, "description": "Write `isValid(s string) bool` for bracket matching '([{}])'. Test '([])' and '([)]'.", "template": "package main\n\nimport \"fmt\"\n\nfunc isValid(s string) bool {\n\t// Your code\n}\n\nfunc main() {\n\tfmt.Println(isValid(\"([])\"))\n\tfmt.Println(isValid(\"([)]\"))\n}", "hints": ["Use a stack", "Push open brackets, pop and match on close"]}, {"id": 46, "title": "Merge Sorted Arrays", "difficulty": "medium", "category": "algorithms", "points": 115, "timeBonus": 80, "description": "Write `merge(a, b []int) []int`. Merge [1,3,5] and [2,4,6].", "template": "package main\n\nimport \"fmt\"\n\nfunc merge(a, b []int) []int {\n\t// Your code\n}\n\nfunc main() {\n\tfmt.Println(merge([]int{1,3,5}, []int{2,4,6}))\n}", "hints": ["Two pointer approach", "Append remaining elements at end"]}, {"id": 47, "title": "Power Function", "difficulty": "easy", "category": "algorithms", "points": 65, "timeBonus": 45, "description": "Write `pow(base, exp int) int` without using math.Pow. Print pow(2,10).", "template": "package main\n\nimport \"fmt\"\n\nfunc pow(base, exp int) int {\n\t// Your code\n}\n\nfunc main() {\n\tfmt.Println(pow(2, 10))\n}", "hints": ["Multiply base by itself exp times", "Or use fast exponentiation"]}, {"id": 48, "title": "GCD & LCM", "difficulty": "easy", "category": "algorithms", "points": 75, "timeBonus": 50, "description": "Write `gcd(a,b int) int` and `lcm(a,b int) int`. Print gcd(48,18) and lcm(4,6).", "template": "package main\n\nimport \"fmt\"\n\nfunc gcd(a, b int) int {\n\t// Your code\n}\n\nfunc lcm(a, b int) int {\n\t// Your code\n}\n\nfunc main() {\n\tfmt.Println(gcd(48, 18))\n\tfmt.Println(lcm(4, 6))\n}", "hints": ["Use Euclidean algorithm for GCD", "LCM = a*b/gcd(a,b)"]}, {"id": 49, "title": "Prime Sieve", "difficulty": "medium", "category": "algorithms", "points": 140, "timeBonus": 100, "description": "Implement Sieve of Eratosthenes to find all primes up to 50.", "template": "package main\n\nimport \"fmt\"\n\nfunc sieve(n int) []int {\n\t// Your code\n}\n\nfunc main() {\n\tfmt.Println(sieve(50))\n}", "hints": ["Boolean array, mark composites as false", "Start from 2, mark multiples"]}, {"id": 50, "title": "Matrix Transpose", "difficulty": "medium", "category": "algorithms", "points": 125, "timeBonus": 90, "description": "Write `transpose(matrix [][]int) [][]int`. Transpose [[1,2,3],[4,5,6]].", "template": "package main\n\nimport \"fmt\"\n\nfunc transpose(matrix [][]int) [][]int {\n\t// Your code\n}\n\nfunc main() {\n\tm := [][]int{{1,2,3},{4,5,6}}\n\tfor _, row := range transpose(m) {\n\t\tfmt.Println(row)\n\t}\n}", "hints": ["Result[j][i] = input[i][j]"]}, {"id": 51, "title": "Flatten Slice", "difficulty": "easy", "category": "slices", "points": 70, "timeBonus": 45, "description": "Write `flatten(nested [][]int) []int`. Flatten [[1,2],[3,4],[5]].", "template": "package main\n\nimport \"fmt\"\n\nfunc flatten(nested [][]int) []int {\n\t// Your code\n}\n\nfunc main() {\n\tfmt.Println(flatten([][]int{{1,2},{3,4},{5}}))\n}", "hints": ["Append each sub-slice to result"]}, {"id": 52, "title": "String Compression", "difficulty": "medium", "category": "strings", "points": 120, "timeBonus": 80, "description": "Write `compress(s string) string` - 'aabcc' becomes 'a2bc2'. Print compress('aabbbcccc').", "template": "package main\n\nimport \"fmt\"\n\nfunc compress(s string) string {\n\t// Your code\n}\n\nfunc main() {\n\tfmt.Println(compress(\"aabbbcccc\"))\n}", "hints": ["Count consecutive chars", "Only add count if > 1"]}, {"id": 53, "title": "Rotate Slice", "difficulty": "easy", "category": "slices", "points": 75, "timeBonus": 50, "description": "Write `rotate(nums []int, k int) []int` - rotate right by k. Rotate [1,2,3,4,5] by 2.", "template": "package main\n\nimport \"fmt\"\n\nfunc rotate(nums []int, k int) []int {\n\t// Your code\n}\n\nfunc main() {\n\tfmt.Println(rotate([]int{1,2,3,4,5}, 2))\n}", "hints": ["k = k % len(nums)", "Slice rearrangement: nums[n-k:] + nums[:n-k]"]}, {"id": 54, "title": "Type Assertion", "difficulty": "medium", "category": "interfaces", "points": 110, "timeBonus": 75, "description": "Write `describe(i interface{}) string` that returns 'int:N', 'string:S', or 'unknown'. Test with 42, 'hello', 3.14.", "template": "package main\n\nimport \"fmt\"\n\nfunc describe(i interface{}) string {\n\t// Use type switch\n}\n\nfunc main() {\n\tfmt.Println(describe(42))\n\tfmt.Println(describe(\"hello\"))\n\tfmt.Println(describe(3.14))\n}", "hints": []}, {"id": 55, "title": "defer Stack Order", "difficulty": "easy", "category": "basics", "points": 65, "timeBonus": 40, "description": "Using 3 defers, demonstrate LIFO order. Defers should print 3, 2, 1.", "template": "package main\n\nimport \"fmt\"\n\nfunc main() {\n\t// Three defers printing 1, 2, 3 in reverse\n}", "hints": ["Defers execute LIFO (last in, first out)"]}, {"id": 56, "title": "Functional Options", "difficulty": "hard", "category": "patterns", "points": 200, "timeBonus": 150, "description": "Implement functional options pattern for a Server struct (host, port, timeout). Create server with WithHost, WithPort options.", "template": "package main\n\nimport \"fmt\"\n\ntype Server struct {\n\thost    string\n\tport    int\n\ttimeout int\n}\n\ntype Option func(*Server)\n\nfunc WithHost(h string) Option {\n\t// Your code\n}\n\nfunc WithPort(p int) Option {\n\t// Your code\n}\n\nfunc NewServer(opts ...Option) *Server {\n\ts := &Server{host:\"localhost\", port:8080, timeout:30}\n\t// Apply options\n\treturn s\n}\n\nfunc main() {\n\ts := NewServer(WithHost(\"example.com\"), WithPort(9090))\n\tfmt.Printf(\"%s:%d\\n\", s.host, s.port)\n}", "hints": ["Option is a func(*Server)"]}, {"id": 57, "title": "Semaphore", "difficulty": "hard", "category": "concurrency", "points": 190, "timeBonus": 140, "description": "Implement a semaphore using a buffered channel limiting concurrency to 3. Show 6 goroutines with max 3 concurrent.", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"sync\"\n\t\"time\"\n)\n\ntype Semaphore chan struct{}\n\nfunc (s Semaphore) Acquire() { s <- struct{}{} }\nfunc (s Semaphore) Release() { <-s }\n\nfunc main() {\n\tsem := make(Semaphore, 3)\n\tvar wg sync.WaitGroup\n\tfor i := 1; i <= 6; i++ {\n\t\twg.Add(1)\n\t\tgo func(id int) {\n\t\t\tdefer wg.Done()\n\t\t\tsem.Acquire()\n\t\t\tdefer sem.Release()\n\t\t\tfmt.Printf(\"goroutine %d running\\n\", id)\n\t\t\ttime.Sleep(50 * time.Millisecond)\n\t\t}(i)\n\t}\n\twg.Wait()\n\tfmt.Println(\"done\")\n}", "hints": ["Buffered channel of size N acts as semaphore"]}, {"id": 58, "title": "Merge Sort", "difficulty": "hard", "category": "algorithms", "points": 210, "timeBonus": 150, "description": "Implement merge sort on []int. Sort [38,27,43,3,9,82,10] and print.", "template": "package main\n\nimport \"fmt\"\n\nfunc mergeSort(arr []int) []int {\n\t// Your code\n}\n\nfunc main() {\n\tarr := []int{38,27,43,3,9,82,10}\n\tfmt.Println(mergeSort(arr))\n}", "hints": ["Base case: len <= 1", "Split, recurse, merge sorted halves"]}, {"id": 59, "title": "Quick Sort", "difficulty": "hard", "category": "algorithms", "points": 210, "timeBonus": 150, "description": "Implement quick sort on []int in-place. Sort [3,6,8,10,1,2,1] and print.", "template": "package main\n\nimport \"fmt\"\n\nfunc quickSort(arr []int, low, high int) {\n\t// Your code\n}\n\nfunc partition(arr []int, low, high int) int {\n\t// Your code\n}\n\nfunc main() {\n\tarr := []int{3,6,8,10,1,2,1}\n\tquickSort(arr, 0, len(arr)-1)\n\tfmt.Println(arr)\n}", "hints": ["Pick pivot (last element)", "Partition around pivot, recurse"]}, {"id": 60, "title": "Graph BFS", "difficulty": "hard", "category": "algorithms", "points": 230, "timeBonus": 170, "description": "Implement BFS on an adjacency list graph. Find shortest path from node 0 to node 4 in a 5-node graph.", "template": "package main\n\nimport \"fmt\"\n\nfunc bfs(graph map[int][]int, start, end int) []int {\n\t// Return path\n}\n\nfunc main() {\n\tgraph := map[int][]int{\n\t\t0: {1, 2},\n\t\t1: {0, 3},\n\t\t2: {0, 4},\n\t\t3: {1, 4},\n\t\t4: {2, 3},\n\t}\n\tfmt.Println(bfs(graph, 0, 4))\n}", "hints": ["Use a queue (slice)", "Track visited and parent nodes"]}, {"id": 61, "title": "Stdin Reader", "difficulty": "easy", "category": "io", "points": 70, "timeBonus": 50, "description": "Read a line from stdin using bufio.Scanner. For the game, just simulate: set input to a string and process it. Print the uppercased version.", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"strings\"\n)\n\nfunc main() {\n\tinput := \"hello gopher\"\n\tfmt.Println(strings.ToUpper(input))\n}", "hints": ["strings.ToUpper converts to uppercase"]}, {"id": 62, "title": "Struct Embedding", "difficulty": "medium", "category": "oop", "points": 125, "timeBonus": 90, "description": "Embed Animal struct in Dog. Animal has Speak() method. Override it in Dog. Demonstrate polymorphism.", "template": "package main\n\nimport \"fmt\"\n\ntype Animal struct{ Name string }\nfunc (a Animal) Speak() string { return a.Name + \" speaks\" }\n\ntype Dog struct {\n\tAnimal\n\t// Your fields\n}\n\nfunc (d Dog) Speak() string {\n\t// Override\n}\n\nfunc main() {\n\td := Dog{Animal: Animal{Name: \"Rex\"}}\n\tfmt.Println(d.Speak())\n\tfmt.Println(d.Animal.Speak())\n}", "hints": ["Embedded struct fields are promoted", "d.Animal.Speak() calls parent"]}, {"id": 63, "title": "Map Inversion", "difficulty": "easy", "category": "maps", "points": 75, "timeBonus": 50, "description": "Write `invertMap(m map[string]int) map[int]string`. Invert {'a':1,'b':2,'c':3}.", "template": "package main\n\nimport \"fmt\"\n\nfunc invertMap(m map[string]int) map[int]string {\n\t// Your code\n}\n\nfunc main() {\n\tresult := invertMap(map[string]int{\"a\":1,\"b\":2,\"c\":3})\n\tfmt.Println(result)\n}", "hints": ["Iterate map, swap key and value"]}, {"id": 64, "title": "Pipe Channels", "difficulty": "hard", "category": "concurrency", "points": 195, "timeBonus": 140, "description": "Write a function `merge(cs ...<-chan int) <-chan int` that merges multiple channels into one.", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"sync\"\n)\n\nfunc merge(cs ...<-chan int) <-chan int {\n\tvar wg sync.WaitGroup\n\tout := make(chan int)\n\t// Your code - start goroutine for each channel\n\tgo func() { wg.Wait(); close(out) }()\n\treturn out\n}\n\nfunc fromSlice(nums []int) <-chan int {\n\tch := make(chan int)\n\tgo func() {\n\t\tfor _, n := range nums { ch <- n }\n\t\tclose(ch)\n\t}()\n\treturn ch\n}\n\nfunc main() {\n\tch1 := fromSlice([]int{1,2,3})\n\tch2 := fromSlice([]int{4,5,6})\n\tfor n := range merge(ch1, ch2) {\n\t\tfmt.Println(n)\n\t}\n}", "hints": ["wg.Add per channel, goroutine forwards and calls wg.Done"]}, {"id": 65, "title": "Error Wrapping", "difficulty": "medium", "category": "errors", "points": 130, "timeBonus": 90, "description": "Use fmt.Errorf with %w to wrap errors. Create a chain: dbErr -> queryErr -> serviceErr. Unwrap and print each.", "template": "package main\n\nimport (\n\t\"errors\"\n\t\"fmt\"\n)\n\nfunc main() {\n\tdbErr := errors.New(\"connection refused\")\n\tqueryErr := fmt.Errorf(\"query failed: %w\", dbErr)\n\tserviceErr := fmt.Errorf(\"service error: %w\", queryErr)\n\tfmt.Println(serviceErr)\n\tfmt.Println(errors.Is(serviceErr, dbErr))\n\tvar target *errors.errorString\n\t_ = target\n\t// Unwrap the chain\n}", "hints": ["errors.Is traverses the chain", "errors.Unwrap goes one level"]}, {"id": 66, "title": "Sort Custom Type", "difficulty": "medium", "category": "sorting", "points": 130, "timeBonus": 90, "description": "Sort []Person by Age using sort.Slice. Print sorted slice of {Alice,30}, {Bob,25}, {Charlie,35}.", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"sort\"\n)\n\ntype Person struct {\n\tName string\n\tAge  int\n}\n\nfunc main() {\n\tpeople := []Person{{\"Alice\",30},{\"Bob\",25},{\"Charlie\",35}}\n\t// Sort by age\n\tfor _, p := range people {\n\t\tfmt.Printf(\"%s: %d\\n\", p.Name, p.Age)\n\t}\n}", "hints": []}, {"id": 67, "title": "String Split Join", "difficulty": "easy", "category": "strings", "points": 65, "timeBonus": 40, "description": "Split 'the quick brown fox' by space, reverse the slice of words, join back with '-'. Print result.", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"strings\"\n)\n\nfunc main() {\n\ts := \"the quick brown fox\"\n\t// Split, reverse, join\n}", "hints": ["strings.Split and strings.Join", "Reverse using two pointers"]}, {"id": 68, "title": "Atomic Counter", "difficulty": "hard", "category": "concurrency", "points": 185, "timeBonus": 130, "description": "Use sync/atomic to safely increment a counter from 1000 goroutines. Print final value (should be 1000).", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"sync\"\n\t\"sync/atomic\"\n)\n\nfunc main() {\n\tvar counter int64\n\tvar wg sync.WaitGroup\n\tfor i := 0; i < 1000; i++ {\n\t\twg.Add(1)\n\t\tgo func() {\n\t\t\tdefer wg.Done()\n\t\t\t// Atomically increment counter\n\t\t}()\n\t}\n\twg.Wait()\n\tfmt.Println(counter)\n}", "hints": ["atomic.AddInt64(&counter, 1)"]}, {"id": 69, "title": "Regex Match", "difficulty": "medium", "category": "strings", "points": 120, "timeBonus": 80, "description": "Use regexp to find all email addresses in a string. Print matches from 'contact alice@go.dev or bob@example.com'.", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"regexp\"\n)\n\nfunc main() {\n\ttext := \"contact alice@go.dev or bob@example.com\"\n\tre := regexp.MustCompile(\"[a-zA-Z0-9._%+\\\\-]+@[a-zA-Z0-9.\\\\-]+\\\\.[a-zA-Z]{2,}\")\n\tfmt.Println(re.FindAllString(text, -1))\n}", "hints": ["regexp.MustCompile then FindAllString"]}, {"id": 70, "title": "Time Formatting", "difficulty": "easy", "category": "stdlib", "points": 65, "timeBonus": 40, "description": "Format time.Now() as 'Mon Jan 2 2006 15:04:05'. Print the result.", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"time\"\n)\n\nfunc main() {\n\tnow := time.Now()\n\t// Format and print\n}", "hints": ["Go uses reference time: Mon Jan 2 15:04:05 2006", "now.Format(layout)"]}, {"id": 71, "title": "Defer Cleanup", "difficulty": "easy", "category": "basics", "points": 70, "timeBonus": 45, "description": "Simulate file open/close with defer. Print 'opening file', work, then 'closing file' via defer.", "template": "package main\n\nimport \"fmt\"\n\nfunc processFile(name string) {\n\tfmt.Println(\"opening\", name)\n\tdefer fmt.Println(\"closing\", name)\n\tfmt.Println(\"working on\", name)\n}\n\nfunc main() {\n\tprocessFile(\"data.txt\")\n}", "hints": ["defer runs when function returns"]}, {"id": 72, "title": "Buffered Channel", "difficulty": "medium", "category": "concurrency", "points": 130, "timeBonus": 90, "description": "Create a buffered channel of size 3. Send 3 values without a receiver. Print all 3.", "template": "package main\n\nimport \"fmt\"\n\nfunc main() {\n\tch := make(chan int, 3)\n\t// Send 3 values and print them\n}", "hints": ["Buffered channels don't block until full"]}, {"id": 73, "title": "Nil Interface Check", "difficulty": "medium", "category": "interfaces", "points": 115, "timeBonus": 80, "description": "Write `isNil(i interface{}) bool` that correctly detects nil interfaces. Show the typed nil vs untyped nil issue.", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"reflect\"\n)\n\nfunc isNil(i interface{}) bool {\n\tif i == nil {\n\t\treturn true\n\t}\n\tv := reflect.ValueOf(i)\n\treturn v.Kind() == reflect.Ptr && v.IsNil()\n}\n\nfunc main() {\n\tvar p *int = nil\n\tfmt.Println(isNil(nil))\n\tfmt.Println(isNil(p))\n}", "hints": ["Use reflect.ValueOf to detect typed nils"]}, {"id": 74, "title": "Struct Tags", "difficulty": "medium", "category": "reflection", "points": 125, "timeBonus": 85, "description": "Use reflection to print all struct field names and their json tags for a User{Name,Email,Age} struct.", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"reflect\"\n)\n\ntype User struct {\n\tName  string `json:\"name\"`\n\tEmail string `json:\"email\"`\n\tAge   int    `json:\"age\"`\n}\n\nfunc main() {\n\tt := reflect.TypeOf(User{})\n\tfor i := 0; i < t.NumField(); i++ {\n\t\tf := t.Field(i)\n\t\tfmt.Printf(\"%s -> %s\\n\", f.Name, f.Tag.Get(\"json\"))\n\t}\n}", "hints": ["reflect.TypeOf, t.NumField(), t.Field(i).Tag.Get(\"json\")"]}, {"id": 75, "title": "Once Init", "difficulty": "medium", "category": "concurrency", "points": 135, "timeBonus": 90, "description": "Use sync.Once to ensure an init function runs exactly once, even from 10 goroutines.", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"sync\"\n)\n\nvar (\n\tonce     sync.Once\n\tinstance string\n)\n\nfunc initialize() {\n\tinstance = \"initialized\"\n\tfmt.Println(\"init ran\")\n}\n\nfunc main() {\n\tvar wg sync.WaitGroup\n\tfor i := 0; i < 10; i++ {\n\t\twg.Add(1)\n\t\tgo func() {\n\t\t\tdefer wg.Done()\n\t\t\tonce.Do(initialize)\n\t\t}()\n\t}\n\twg.Wait()\n\tfmt.Println(instance)\n}", "hints": ["once.Do(fn) guarantees fn runs once"]}, {"id": 76, "title": "HTTP Handler", "difficulty": "hard", "category": "web", "points": 200, "timeBonus": 150, "description": "Write a simple HTTP handler function that returns JSON `{\"status\":\"ok\"}`. Register on /health. (Just write the handler logic, don't start server.)", "template": "package main\n\nimport (\n\t\"encoding/json\"\n\t\"fmt\"\n\t\"net/http\"\n\t\"net/http/httptest\"\n)\n\nfunc healthHandler(w http.ResponseWriter, r *http.Request) {\n\t// Write JSON response\n}\n\nfunc main() {\n\treq := httptest.NewRequest(\"GET\", \"/health\", nil)\n\tw := httptest.NewRecorder()\n\thealthHandler(w, req)\n\tfmt.Println(w.Body.String())\n}", "hints": ["w.Header().Set(\"Content-Type\", \"application/json\")", "json.NewEncoder(w).Encode(map)"]}, {"id": 77, "title": "Strings Fields", "difficulty": "easy", "category": "strings", "points": 60, "timeBonus": 35, "description": "Use strings.Fields to split '  hello   world  go  ' and print each word on a new line.", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"strings\"\n)\n\nfunc main() {\n\ts := \"  hello   world  go  \"\n\t// Your code\n}", "hints": ["strings.Fields handles multiple spaces"]}, {"id": 78, "title": "Strconv Parse", "difficulty": "easy", "category": "stdlib", "points": 65, "timeBonus": 40, "description": "Parse '42' and '3.14' from strings to int and float64. Print their sum as float64.", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"strconv\"\n)\n\nfunc main() {\n\t// Parse and sum\n}", "hints": ["strconv.Atoi for int, strconv.ParseFloat for float"]}, {"id": 79, "title": "Byte Slice Ops", "difficulty": "easy", "category": "strings", "points": 65, "timeBonus": 40, "description": "Convert string to []byte, change first byte to uppercase manually, convert back to string. Test with 'gopher'.", "template": "package main\n\nimport \"fmt\"\n\nfunc main() {\n\ts := \"gopher\"\n\t// Convert, modify, convert back\n}", "hints": ["[]byte(s) converts", "Subtract 32 for ASCII uppercase"]}, {"id": 80, "title": "Named Return Values", "difficulty": "medium", "category": "functions", "points": 100, "timeBonus": 70, "description": "Write `minMax(nums []int) (min, max int)` using named return values. Print for [3,1,4,1,5,9].", "template": "package main\n\nimport \"fmt\"\n\nfunc minMax(nums []int) (min, max int) {\n\tmin, max = nums[0], nums[0]\n\t// Your code\n}\n\nfunc main() {\n\tmin, max := minMax([]int{3,1,4,1,5,9})\n\tfmt.Println(min, max)\n}", "hints": ["Named returns are initialized, bare return works"]}, {"id": 81, "title": "Sliding Window", "difficulty": "hard", "category": "algorithms", "points": 220, "timeBonus": 160, "description": "Find the maximum sum of a subarray of size k. Test with [2,1,5,1,3,2], k=3 (answer: 9).", "template": "package main\n\nimport \"fmt\"\n\nfunc maxSubarraySum(arr []int, k int) int {\n\t// Sliding window\n}\n\nfunc main() {\n\tfmt.Println(maxSubarraySum([]int{2,1,5,1,3,2}, 3))\n}", "hints": ["Compute first window sum", "Slide: add arr[i], subtract arr[i-k]"]}, {"id": 82, "title": "Depth-First Search", "difficulty": "hard", "category": "algorithms", "points": 230, "timeBonus": 170, "description": "Implement DFS on a graph. Print DFS traversal starting from node 0 for a 5-node graph.", "template": "package main\n\nimport \"fmt\"\n\nfunc dfs(graph map[int][]int, node int, visited map[int]bool) {\n\t// Your code\n}\n\nfunc main() {\n\tgraph := map[int][]int{0:{1,2},1:{0,3,4},2:{0},3:{1},4:{1}}\n\tvisited := map[int]bool{}\n\tdfs(graph, 0, visited)\n}", "hints": ["Mark visited, recurse on unvisited neighbors"]}, {"id": 83, "title": "Struct Method Chaining", "difficulty": "medium", "category": "oop", "points": 135, "timeBonus": 95, "description": "Implement a Builder pattern for a Query struct with Table, Where, Limit methods that return *Query for chaining.", "template": "package main\n\nimport \"fmt\"\n\ntype Query struct {\n\ttable string\n\twhere string\n\tlimit int\n}\n\nfunc (q *Query) Table(t string) *Query { q.table = t; return q }\nfunc (q *Query) Where(w string) *Query { q.where = w; return q }\nfunc (q *Query) Limit(l int) *Query   { q.limit = l; return q }\n\nfunc (q *Query) Build() string {\n\t// Return SQL-like string\n}\n\nfunc main() {\n\tq := (&Query{}).Table(\"users\").Where(\"age > 18\").Limit(10)\n\tfmt.Println(q.Build())\n}", "hints": ["Build returns formatted SELECT ... FROM ... WHERE ... LIMIT ..."]}, {"id": 84, "title": "Recursive Tree", "difficulty": "hard", "category": "data-structures", "points": 240, "timeBonus": 170, "description": "Implement a BST with Insert and InOrder traversal. Insert [5,3,7,1,4] and print in-order.", "template": "package main\n\nimport \"fmt\"\n\ntype TreeNode struct {\n\tVal         int\n\tLeft, Right *TreeNode\n}\n\nfunc insert(root *TreeNode, val int) *TreeNode {\n\t// Your code\n}\n\nfunc inOrder(root *TreeNode) {\n\t// Your code\n}\n\nfunc main() {\n\tvar root *TreeNode\n\tfor _, v := range []int{5,3,7,1,4} {\n\t\troot = insert(root, v)\n\t}\n\tinOrder(root)\n}", "hints": ["If root==nil, create node", "If val < root.Val go left, else right"]}, {"id": 85, "title": "Concurrent Map", "difficulty": "hard", "category": "concurrency", "points": 200, "timeBonus": 150, "description": "Use sync.Map to safely read/write from multiple goroutines. Store and retrieve 5 key-value pairs concurrently.", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"sync\"\n)\n\nfunc main() {\n\tvar m sync.Map\n\tvar wg sync.WaitGroup\n\tfor i := 0; i < 5; i++ {\n\t\twg.Add(1)\n\t\tgo func(n int) {\n\t\t\tdefer wg.Done()\n\t\t\tm.Store(n, n*n)\n\t\t}(i)\n\t}\n\twg.Wait()\n\tm.Range(func(k, v interface{}) bool {\n\t\tfmt.Printf(\"%v: %v\\n\", k, v)\n\t\treturn true\n\t})\n}", "hints": ["sync.Map is safe for concurrent use without locks"]}, {"id": 86, "title": "String Replace", "difficulty": "easy", "category": "strings", "points": 55, "timeBonus": 30, "description": "Replace all occurrences of 'Go' with 'Golang' in 'Go is great! Go is fast! Go rocks!'.", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"strings\"\n)\n\nfunc main() {\n\ts := \"Go is great! Go is fast! Go rocks!\"\n\t// Your code\n}", "hints": ["strings.ReplaceAll(s, old, new)"]}, {"id": 87, "title": "Iota Enum", "difficulty": "easy", "category": "basics", "points": 65, "timeBonus": 40, "description": "Define a Weekday type using iota (Monday=1..Sunday=7). Print Monday and Friday with their values.", "template": "package main\n\nimport \"fmt\"\n\ntype Weekday int\n\nconst (\n\tMonday Weekday = iota + 1\n\t// Rest of days\n)\n\nfunc main() {\n\tfmt.Println(Monday, Friday)\n}", "hints": ["iota increments for each const in a group"]}, {"id": 88, "title": "Goroutine Leak Fix", "difficulty": "hard", "category": "concurrency", "points": 210, "timeBonus": 150, "description": "Fix this goroutine leak: a goroutine sends to a channel but nobody reads. Use done channel to signal stop.", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"time\"\n)\n\nfunc producer(done <-chan struct{}) <-chan int {\n\tch := make(chan int)\n\tgo func() {\n\t\tdefer close(ch)\n\t\tfor i := 0; ; i++ {\n\t\t\tselect {\n\t\t\tcase ch <- i:\n\t\t\tcase <-done:\n\t\t\t\treturn\n\t\t\t}\n\t\t}\n\t}()\n\treturn ch\n}\n\nfunc main() {\n\tdone := make(chan struct{})\n\tch := producer(done)\n\tfor i := 0; i < 5; i++ {\n\t\tfmt.Println(<-ch)\n\t}\n\tclose(done)\n\ttime.Sleep(10 * time.Millisecond)\n\tfmt.Println(\"no leak!\")\n}", "hints": ["done channel signals goroutine to stop"]}, {"id": 89, "title": "Recursive Flatten", "difficulty": "medium", "category": "recursion", "points": 130, "timeBonus": 90, "description": "Use interface{} to flatten deeply nested slices. Flatten [1,[2,[3,4]],5] into [1,2,3,4,5].", "template": "package main\n\nimport \"fmt\"\n\nfunc flatten(val interface{}) []int {\n\t// Your code\n}\n\nfunc main() {\n\tnested := []interface{}{1, []interface{}{2, []interface{}{3, 4}}, 5}\n\tfmt.Println(flatten(nested))\n}", "hints": []}, {"id": 90, "title": "HTTP Middleware", "difficulty": "hard", "category": "web", "points": 210, "timeBonus": 150, "description": "Write a logging middleware that wraps an http.Handler and prints request method+path. Test with httptest.", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"net/http\"\n\t\"net/http/httptest\"\n)\n\nfunc loggingMiddleware(next http.Handler) http.Handler {\n\treturn http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {\n\t\tfmt.Printf(\"%s %s\\n\", r.Method, r.URL.Path)\n\t\tnext.ServeHTTP(w, r)\n\t})\n}\n\nfunc main() {\n\thandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {\n\t\tw.Write([]byte(\"ok\"))\n\t})\n\tts := httptest.NewServer(loggingMiddleware(handler))\n\tdefer ts.Close()\n\thttp.Get(ts.URL + \"/hello\")\n}", "hints": ["Middleware: func(Handler) Handler pattern"]}, {"id": 91, "title": "Generics Stack", "difficulty": "hard", "category": "generics", "points": 220, "timeBonus": 160, "description": "Implement a generic Stack[T any] with Push, Pop, Peek methods. Use with both int and string.", "template": "package main\n\nimport \"fmt\"\n\ntype Stack[T any] struct {\n\titems []T\n}\n\nfunc (s *Stack[T]) Push(item T) {\n\t// Your code\n}\n\nfunc (s *Stack[T]) Pop() (T, bool) {\n\t// Your code\n}\n\nfunc main() {\n\ts := &Stack[int]{}\n\ts.Push(1); s.Push(2); s.Push(3)\n\tfor {\n\t\tv, ok := s.Pop()\n\t\tif !ok { break }\n\t\tfmt.Println(v)\n\t}\n}", "hints": ["T is the type parameter, works for any type"]}, {"id": 92, "title": "Pipeline Done", "difficulty": "hard", "category": "concurrency", "points": 230, "timeBonus": 165, "description": "Implement a cancellable pipeline using done channel. Generate squares of 1-10, cancel after receiving 5 results.", "template": "package main\n\nimport \"fmt\"\n\nfunc gen(done <-chan struct{}, nums ...int) <-chan int {\n\tout := make(chan int)\n\tgo func() {\n\t\tdefer close(out)\n\t\tfor _, n := range nums {\n\t\t\tselect {\n\t\t\tcase out <- n:\n\t\t\tcase <-done:\n\t\t\t\treturn\n\t\t\t}\n\t\t}\n\t}()\n\treturn out\n}\n\nfunc sq(done <-chan struct{}, in <-chan int) <-chan int {\n\tout := make(chan int)\n\tgo func() {\n\t\tdefer close(out)\n\t\tfor n := range in {\n\t\t\tselect {\n\t\t\tcase out <- n * n:\n\t\t\tcase <-done:\n\t\t\t\treturn\n\t\t\t}\n\t\t}\n\t}()\n\treturn out\n}\n\nfunc main() {\n\tdone := make(chan struct{})\n\tc := sq(done, gen(done, 1,2,3,4,5,6,7,8,9,10))\n\tfor i := 0; i < 5; i++ {\n\t\tfmt.Println(<-c)\n\t}\n\tclose(done)\n}", "hints": ["close(done) propagates cancellation through pipeline"]}, {"id": 93, "title": "Interfaces Compose", "difficulty": "medium", "category": "interfaces", "points": 140, "timeBonus": 100, "description": "Compose Saver and Loader into a Store interface. Implement with a MemStore. Save and load a value.", "template": "package main\n\nimport \"fmt\"\n\ntype Saver interface { Save(key, val string) }\ntype Loader interface { Load(key string) string }\ntype Store interface { Saver; Loader }\n\ntype MemStore struct { data map[string]string }\n\nfunc (m *MemStore) Save(k, v string) { m.data[k] = v }\nfunc (m *MemStore) Load(k string) string { return m.data[k] }\n\nfunc use(s Store) {\n\ts.Save(\"lang\", \"Go\")\n\tfmt.Println(s.Load(\"lang\"))\n}\n\nfunc main() {\n\tuse(&MemStore{data: map[string]string{}})\n}", "hints": ["Interface embedding composes two interfaces into one"]}, {"id": 94, "title": "Grep Tool", "difficulty": "medium", "category": "strings", "points": 130, "timeBonus": 90, "description": "Write a `grep(pattern, text string) []string` returning lines matching the pattern. Test with a multiline string.", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"strings\"\n)\n\nfunc grep(pattern, text string) []string {\n\tvar results []string\n\tfor _, line := range strings.Split(text, \"\\n\") {\n\t\t// Your code\n\t}\n\treturn results\n}\n\nfunc main() {\n\ttext := \"go is fast\\npython is slow\\ngo rocks\\njava is verbose\"\n\tfor _, l := range grep(\"go\", text) {\n\t\tfmt.Println(l)\n\t}\n}", "hints": ["strings.Contains checks if line has pattern"]}, {"id": 95, "title": "Chained Errors", "difficulty": "hard", "category": "errors", "points": 195, "timeBonus": 140, "description": "Implement errors.As to extract a specific error type from a wrapped chain. Wrap a *NotFoundError and extract it.", "template": "package main\n\nimport (\n\t\"errors\"\n\t\"fmt\"\n)\n\ntype NotFoundError struct { Resource string }\nfunc (e *NotFoundError) Error() string { return e.Resource + \" not found\" }\n\nfunc getUser(id int) error {\n\treturn fmt.Errorf(\"getUser: %w\", &NotFoundError{\"user\"})\n}\n\nfunc main() {\n\terr := getUser(42)\n\tvar nfe *NotFoundError\n\tif errors.As(err, &nfe) {\n\t\tfmt.Println(\"Resource:\", nfe.Resource)\n\t}\n}", "hints": ["errors.As unwraps until it finds target type"]}, {"id": 96, "title": "String Interning", "difficulty": "medium", "category": "strings", "points": 120, "timeBonus": 80, "description": "Build a string intern pool using a map. Intern 'hello' twice and verify they're the same pointer address.", "template": "package main\n\nimport \"fmt\"\n\nvar pool = map[string]string{}\n\nfunc intern(s string) string {\n\tif v, ok := pool[s]; ok { return v }\n\tpool[s] = s\n\treturn s\n}\n\nfunc main() {\n\ta := intern(\"hello\")\n\tb := intern(\"hello\")\n\tfmt.Println(a == b)\n\tfmt.Printf(\"%p %p\\n\", &a, &b) // different stack vars\n\tfmt.Println(pool)\n}", "hints": ["Map lookup returns existing entry"]}, {"id": 97, "title": "Bitwise Ops", "difficulty": "medium", "category": "algorithms", "points": 125, "timeBonus": 85, "description": "Write functions: `isPowerOfTwo(n int) bool` and `countBits(n int) int`. Test with 16, 7, 255.", "template": "package main\n\nimport \"fmt\"\n\nfunc isPowerOfTwo(n int) bool {\n\t// Your code\n}\n\nfunc countBits(n int) int {\n\t// Your code\n}\n\nfunc main() {\n\tfmt.Println(isPowerOfTwo(16), isPowerOfTwo(7))\n\tfmt.Println(countBits(255))\n}", "hints": ["n & (n-1) == 0 for powers of 2", "Brian Kernighan's trick for counting bits"]}, {"id": 98, "title": "CSV Parser", "difficulty": "medium", "category": "stdlib", "points": 130, "timeBonus": 90, "description": "Parse a CSV string using encoding/csv. Parse 'name,age\\nAlice,30\\nBob,25' and print each record.", "template": "package main\n\nimport (\n\t\"encoding/csv\"\n\t\"fmt\"\n\t\"strings\"\n)\n\nfunc main() {\n\tdata := \"name,age\\nAlice,30\\nBob,25\"\n\tr := csv.NewReader(strings.NewReader(data))\n\t// Read all records and print\n}", "hints": ["r.ReadAll() returns [][]string, error"]}, {"id": 99, "title": "Race Condition", "difficulty": "hard", "category": "concurrency", "points": 240, "timeBonus": 170, "description": "Demonstrate and fix a race condition. Write a bank account with concurrent deposits using sync.Mutex.", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"sync\"\n)\n\ntype Account struct {\n\tmu      sync.Mutex\n\tbalance int\n}\n\nfunc (a *Account) Deposit(amount int) {\n\ta.mu.Lock()\n\tdefer a.mu.Unlock()\n\ta.balance += amount\n}\n\nfunc main() {\n\tvar wg sync.WaitGroup\n\tacc := &Account{}\n\tfor i := 0; i < 1000; i++ {\n\t\twg.Add(1)\n\t\tgo func() {\n\t\t\tdefer wg.Done()\n\t\t\tacc.Deposit(1)\n\t\t}()\n\t}\n\twg.Wait()\n\tfmt.Println(acc.balance) // Should be 1000\n}", "hints": ["Always lock before accessing shared state"]}, {"id": 100, "title": "Mini ORM Query Builder", "difficulty": "hard", "category": "patterns", "points": 300, "timeBonus": 200, "description": "Build a mini query builder supporting SELECT, WHERE, ORDER BY, LIMIT. Chain them fluently and call .SQL() to get the string.", "template": "package main\n\nimport (\n\t\"fmt\"\n\t\"strings\"\n)\n\ntype QB struct {\n\ttable   string\n\tfields  []string\n\twhere   []string\n\torderBy string\n\tlimit   int\n}\n\nfunc From(table string) *QB { return &QB{table: table} }\n\nfunc (q *QB) Select(fields ...string) *QB {\n\tq.fields = fields\n\treturn q\n}\n\nfunc (q *QB) Where(cond string) *QB {\n\tq.where = append(q.where, cond)\n\treturn q\n}\n\nfunc (q *QB) OrderBy(field string) *QB {\n\tq.orderBy = field\n\treturn q\n}\n\nfunc (q *QB) Limit(n int) *QB {\n\tq.limit = n\n\treturn q\n}\n\nfunc (q *QB) SQL() string {\n\t// Build the SQL string\n\tfields := \"*\"\n\tif len(q.fields) > 0 {\n\t\tfields = strings.Join(q.fields, \", \")\n\t}\n\tsql := fmt.Sprintf(\"SELECT %s FROM %s\", fields, q.table)\n\tif len(q.where) > 0 {\n\t\tsql += \" WHERE \" + strings.Join(q.where, \" AND \")\n\t}\n\tif q.orderBy != \"\" {\n\t\tsql += \" ORDER BY \" + q.orderBy\n\t}\n\tif q.limit > 0 {\n\t\tsql += fmt.Sprintf(\" LIMIT %d\", q.limit)\n\t}\n\treturn sql\n}\n\nfunc main() {\n\tq := From(\"users\").\n\t\tSelect(\"id\", \"name\", \"email\").\n\t\tWhere(\"age > 18\").\n\t\tWhere(\"active = true\").\n\t\tOrderBy(\"name\").\n\t\tLimit(10)\n\tfmt.Println(q.SQL())\n}", "hints": ["Build SQL string piece by piece", "Method chaining returns *QB"]}];
+
+// ─── Questions Data ───────────────────────────────────────────────────────────
+// Loaded from /api/questions (served by main.go)
+// The QUESTIONS array below is kept here as fallback; server is the source of truth.
+
+// ─── State ───────────────────────────────────────────────────────────────────
+const API = 'http://localhost:8080/api';
+let questions = [];
+let currentQ = null;
+let player = null;
+let editor = null;
+let timerInterval = null;
+let startTime = null;
+let filterDiff = 'all';
+let lintTimeout = null;
+let outputTab = 'output';
+let lastOutput = '';
+let lastError = '';
+let dailyQ = null;
+
+const PLAYER_KEY = 'gochallenge_player_id';
+
+// ─── Init ────────────────────────────────────────────────────────────────────
+function getOrCreateID() {
+  let id = localStorage.getItem(PLAYER_KEY);
+  if (!id) { id = 'p_' + Math.random().toString(36).slice(2); localStorage.setItem(PLAYER_KEY, id); }
+  return id;
+}
+
+async function init() {
+  const id = getOrCreateID();
+  player = {id, name:'Gopher', points:0, level:1, streak:0, achievements:[], solvedIds:[]};
+  questions = QUESTIONS;
+  dailyQ = QUESTIONS.find(q => q.id === 1) || null; // Daily challenge (preview mode)
+  updateHeader();
+  renderList();
+  initMonaco();
+}
+
+// ─── Monaco ──────────────────────────────────────────────────────────────────
+function initMonaco() {
+  require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' } });
+  require(['vs/editor/editor.main'], function() {
+    monaco.editor.defineTheme('gochallenge', {
+      base: 'vs-dark',
+      inherit: true,
+      rules: [
+        { token: 'keyword', foreground: '00d4aa', fontStyle: 'bold' },
+        { token: 'string', foreground: 'a8e6cf' },
+        { token: 'comment', foreground: '4a5568', fontStyle: 'italic' },
+        { token: 'number', foreground: 'fbbf24' },
+        { token: 'type', foreground: '5b8ef0' },
+        { token: 'function', foreground: 'a78bfa' },
+      ],
+      colors: {
+        'editor.background': '#0d0f14',
+        'editor.foreground': '#e8eaf0',
+        'editor.lineHighlightBackground': '#1a1e28',
+        'editor.selectionBackground': '#2a3a5a',
+        'editorLineNumber.foreground': '#3a4260',
+        'editorLineNumber.activeForeground': '#6b7594',
+        'editor.indentGuide.background': '#1a1e28',
+        'scrollbar.shadow': '#000000',
+        'editorCursor.foreground': '#00d4aa',
+      }
+    });
+    editor = monaco.editor.create(document.getElementById('editor'), {
+      value: '// Select a challenge to begin\npackage main\n\nimport "fmt"\n\nfunc main() {\n\tfmt.Println("Hello, Gopher!")\n}',
+      language: 'go',
+      theme: 'gochallenge',
+      fontSize: 14,
+      fontFamily: "'JetBrains Mono', monospace",
+      fontLigatures: true,
+      lineNumbers: 'on',
+      minimap: { enabled: false },
+      scrollBeyondLastLine: false,
+      automaticLayout: true,
+      tabSize: 2,
+      wordWrap: 'off',
+      smoothScrolling: true,
+      cursorBlinking: 'smooth',
+      cursorSmoothCaretAnimation: true,
+      renderLineHighlight: 'line',
+      padding: { top: 12, bottom: 12 },
+      suggest: { showKeywords: true },
+    });
+
+    editor.onDidChangeModelContent(() => {
+      clearTimeout(lintTimeout);
+      setLint('checking');
+      lintTimeout = setTimeout(() => lintCode(), 1200);
+    });
+  });
+}
+
+// ─── Lint ─────────────────────────────────────────────────────────────────────
+async function lintCode() {
+  if (!editor) return;
+  const code = editor.getValue();
+  try {
+    const res = await fetch(`${API}/lint`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({code})
+    });
+    const data = await res.json();
+    if (data.errors && data.errors.length > 0) {
+      setLint('error', data.errors.length + ' issue(s)');
+    } else {
+      setLint('ok');
+    }
+  } catch { setLint('ok'); }
+}
+
+function setLint(state, msg='') {
+  const dot = document.getElementById('lint-dot');
+  const txt = document.getElementById('lint-text');
+  dot.className = 'lint-dot';
+  if (state === 'error') { dot.classList.add('error'); txt.textContent = msg || 'Errors'; txt.style.color = 'var(--red)'; }
+  else if (state === 'checking') { dot.classList.add('checking'); txt.textContent = 'Checking…'; txt.style.color = 'var(--yellow)'; }
+  else { txt.textContent = 'Clean'; txt.style.color = 'var(--green)'; }
+}
+
+// ─── Questions ───────────────────────────────────────────────────────────────
+function renderList() {
+  const search = document.getElementById('q-search').value.toLowerCase();
+  const list = document.getElementById('q-list');
+  const solvedIds = player?.solvedIds || [];
+
+  const filtered = questions.filter(q => {
+    const matchDiff = filterDiff === 'all' || q.difficulty === filterDiff;
+    const matchSearch = !search || q.title.toLowerCase().includes(search) || q.category.toLowerCase().includes(search);
+    return matchDiff && matchSearch;
+  });
+
+  list.innerHTML = filtered.map(q => {
+    const solved = solvedIds.includes(q.id);
+    const isDaily = dailyQ && dailyQ.id === q.id;
+    const active = currentQ && currentQ.id === q.id;
+    return `<div class="q-item ${active?'active':''} ${solved?'solved':''}" onclick="selectQ(${q.id})">
+      <span class="q-num">${q.id}</span>
+      <div class="q-info">
+        <div class="q-title">${isDaily ? '⭐ ' : ''}${q.title}</div>
+        <div class="q-meta">${q.category} · ${q.points}pts</div>
+      </div>
+      <span class="diff-badge diff-${q.difficulty}">${q.difficulty[0].toUpperCase()}</span>
+      ${solved ? '<span class="solved-check">✓</span>' : ''}
+    </div>`;
+  }).join('');
+
+  document.getElementById('solved-count').textContent = `${solvedIds.length}/100`;
+}
+
+function setFilter(diff, btn) {
+  filterDiff = diff;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList();
+}
+
+function selectQ(id) {
+  currentQ = questions.find(q => q.id === id);
+  if (!currentQ) return;
+
+  document.getElementById('q-title').textContent = `#${currentQ.id} ${currentQ.title}`;
+  document.getElementById('q-desc').textContent = currentQ.description;
+  document.getElementById('q-pts').textContent = currentQ.points;
+
+  const isDaily = dailyQ && dailyQ.id === currentQ.id;
+  document.getElementById('daily-banner').style.display = isDaily ? 'flex' : 'none';
+
+  // Hints
+  const hintsRow = document.getElementById('hints-row');
+  if (currentQ.hints && currentQ.hints.length > 0) {
+    hintsRow.style.display = 'flex';
+    const container = document.getElementById('hints-container');
+    container.innerHTML = currentQ.hints.map((h, i) =>
+      `<span class="hint-chip" id="hint-${i}" onclick="revealHint(${i},'${escapeHtml(h)}')">Hint ${i+1}</span>`
+    ).join('');
+  } else {
+    hintsRow.style.display = 'none';
+  }
+
+  if (editor) editor.setValue(currentQ.template || '');
+  document.getElementById('run-btn').disabled = false;
+  document.getElementById('output-content').innerHTML = '<span class="out-info">// Ready to run. Click ▶ Run Code or press Ctrl+Enter</span>';
+  renderList();
+  startTimer();
+}
+
+function revealHint(i, text) {
+  const chip = document.getElementById(`hint-${i}`);
+  if (chip && !chip.classList.contains('revealed')) {
+    chip.classList.add('revealed');
+    chip.textContent = text;
+    chip.title = text;
+  }
+}
+
+function escapeHtml(s) { return s.replace(/'/g,"&#39;").replace(/"/g,'&quot;'); }
+
+function resetCode() {
+  if (!currentQ || !editor) return;
+  editor.setValue(currentQ.template || '');
+  startTimer();
+}
+
+// ─── Timer ───────────────────────────────────────────────────────────────────
+function startTimer() {
+  clearInterval(timerInterval);
+  startTime = Date.now();
+  updateTimerDisplay();
+  timerInterval = setInterval(updateTimerDisplay, 1000);
+}
+
+function updateTimerDisplay() {
+  if (!startTime) return;
+  const elapsed = Math.floor((Date.now() - startTime) / 1000);
+  const m = Math.floor(elapsed / 60);
+  const s = elapsed % 60;
+  const t = document.getElementById('timer');
+  t.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  t.className = 'timer-display';
+  if (elapsed > 300) t.classList.add('danger');
+  else if (elapsed > 120) t.classList.add('warning');
+}
+
+// ─── Run Code ─────────────────────────────────────────────────────────────────
+async function runCode() {
+  if (!editor || !currentQ) return;
+  const code = editor.getValue();
+  const btn = document.getElementById('run-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Running…';
+
+  const out = document.getElementById('output-content');
+  out.innerHTML = '<span class="out-info">⏳ Compiling and running…</span>';
+
+  try {
+    const res = await fetch(`${API}/run`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        code,
+        questionId: currentQ.id,
+        playerId: player.id,
+        startTime: startTime || Date.now()
+      })
+    });
+    const data = await res.json();
+    lastOutput = data.output || '';
+    lastError = data.error || '';
+
+    if (data.success) {
+      out.innerHTML = `<span class="out-success">✅ Success!</span>\n${escHtml(data.output)}`;
+      if (data.points > 0) {
+        out.innerHTML += `\n<span class="out-pts">+${data.points} points earned!</span>`;
+        if (data.timeBonus > 0) {
+          out.innerHTML += ` <span class="out-pts">(⚡ +${data.timeBonus} speed bonus)</span>`;
+        }
+      }
+      player = await fetch(`${API}/player?id=${player.id}`).then(r=>r.json());
+      updateHeader();
+      renderList();
+      clearInterval(timerInterval);
+
+      if (data.unlocked && data.unlocked.length > 0) {
+        data.unlocked.forEach(a => toast('achievement', `${a.icon} Achievement Unlocked!`, a.name + ' — ' + a.description));
+      }
+      if (data.points > 0) {
+        toast('success', '✅ Challenge Solved!', `+${data.points} points${data.timeBonus ? ` (⚡ speed bonus)` : ''}`);
+      }
+    } else {
+      out.innerHTML = `<span class="out-error">❌ Error:</span>\n<span style="color:var(--red)">${escHtml(data.error)}</span>`;
+      toast('error', '❌ Build Failed', 'Check the output panel for details');
+    }
+  } catch(e) {
+    out.innerHTML = `<span class="out-error">Connection error — is the server running?</span>`;
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<span>▶</span> Run Code';
+}
+
+function escHtml(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function showTab(tab, el) {
+  outputTab = tab;
+  document.querySelectorAll('.output-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const out = document.getElementById('output-content');
+  if (tab === 'output') {
+    out.innerHTML = lastOutput ? `<span class="out-success">Output:</span>\n${escHtml(lastOutput)}` : '<span class="out-info">// No output yet</span>';
+  } else {
+    out.innerHTML = lastError ? `<span class="out-error">Error:</span>\n<span style="color:var(--red)">${escHtml(lastError)}</span>` : '<span class="out-success">// No errors</span>';
+  }
+}
+
+// ─── Ctrl+Enter shortcut ──────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); runCode(); }
+});
+
+// ─── Leaderboard ─────────────────────────────────────────────────────────────
+async function openLeaderboard() {
+  document.getElementById('lb-panel').classList.add('open');
+  const body = document.getElementById('lb-body');
+  body.innerHTML = 'Loading…';
+  const entries = await fetch(`${API}/leaderboard`).then(r=>r.json()).catch(()=>[]);
+  if (!entries.length) { body.innerHTML = '<div style="color:var(--text3);text-align:center;padding:30px">No players yet. Be the first!</div>'; return; }
+  const ranks = ['🥇','🥈','🥉'];
+  body.innerHTML = entries.map(e => `
+    <div class="lb-entry ${e.rank<=3?'top'+e.rank:''}">
+      <div class="lb-rank">${ranks[e.rank-1]||e.rank}</div>
+      <div class="lb-name">${escHtml(e.name)}</div>
+      <div class="lb-lvl">Lv.${e.level}</div>
+      <div class="lb-streak">🔥${e.streak}</div>
+      <div class="lb-pts">${e.points} pts</div>
+    </div>
+  `).join('');
+}
+
+// ─── Achievements ─────────────────────────────────────────────────────────────
+const ALL_ACHS = [
+  // ── Milestones ───────────────────────────────
+  {id:'first_blood',      name:'First Blood',        desc:'Solve your first challenge',          icon:'🩸'},
+  {id:'gopher',           name:'Gopher',             desc:'Solve 10 challenges',                 icon:'🐹'},
+  {id:'master_gopher',    name:'Master Gopher',      desc:'Solve 25 challenges',                 icon:'🦫'},
+  {id:'legend',           name:'Legend',             desc:'Solve 50 challenges',                 icon:'👑'},
+  {id:'centurion',        name:'Centurion',          desc:'Solve all 100 challenges',            icon:'🎯'},
+  // ── Points ───────────────────────────────────
+  {id:'pts_100',          name:'Rookie',             desc:'Earn 100 points',                     icon:'🌱'},
+  {id:'pts_500',          name:'Rising Star',        desc:'Earn 500 points',                     icon:'⭐'},
+  {id:'pts_1000',         name:'Centurion',          desc:'Earn 1000 points',                    icon:'🏆'},
+  {id:'pts_2500',         name:'Elite',              desc:'Earn 2500 points',                    icon:'💫'},
+  {id:'pts_5000',         name:'Grand Master',       desc:'Earn 5000 points',                    icon:'🌟'},
+  // ── Speed ────────────────────────────────────
+  {id:'speed_demon',      name:'Speed Demon',        desc:'Solve a challenge in under 60s',      icon:'⚡'},
+  {id:'lightning',        name:'Lightning Fingers',  desc:'Solve a challenge in under 30s',      icon:'🌩️'},
+  {id:'blink',            name:'Blink',              desc:'Solve a challenge in under 10s',      icon:'👁️'},
+  // ── Streaks ──────────────────────────────────
+  {id:'on_fire',          name:'On Fire',            desc:'5-challenge win streak',              icon:'🔥'},
+  {id:'unstoppable',      name:'Unstoppable',        desc:'10-challenge win streak',             icon:'🚀'},
+  {id:'godlike',          name:'Godlike',            desc:'25-challenge win streak',             icon:'🌈'},
+  // ── Difficulty ───────────────────────────────
+  {id:'easy_rider',       name:'Easy Rider',         desc:'Solve 10 easy challenges',            icon:'🛵'},
+  {id:'middleway',        name:'Middle Way',         desc:'Solve 10 medium challenges',          icon:'⚖️'},
+  {id:'perfectionist',    name:'Perfectionist',      desc:'Solve your first hard challenge',     icon:'💎'},
+  {id:'hard_boiled',      name:'Hard Boiled',        desc:'Solve 10 hard challenges',            icon:'🥚'},
+  {id:'no_easy_way',      name:'No Easy Way',        desc:'Solve 5 hard challenges in a row',   icon:'🪨'},
+  // ── Categories ───────────────────────────────
+  {id:'concurrency_king', name:'Concurrency King',   desc:'Solve a concurrency challenge',       icon:'🔀'},
+  {id:'string_wizard',    name:'String Wizard',      desc:'Solve 5 string challenges',           icon:'🧵'},
+  {id:'algo_master',      name:'Algo Master',        desc:'Solve 5 algorithm challenges',        icon:'🧠'},
+  {id:'data_hoarder',     name:'Data Hoarder',       desc:'Solve 5 data-structure challenges',  icon:'🗄️'},
+  {id:'generic_hero',     name:'Generic Hero',       desc:'Solve a generics challenge',          icon:'🦸'},
+  {id:'web_dev',          name:'Web Dev',            desc:'Solve a web challenge',               icon:'🌐'},
+  {id:'map_maker',        name:'Map Maker',          desc:'Solve 3 map challenges',              icon:'🗺️'},
+  {id:'recursion_lord',   name:'Recursion Lord',     desc:'Solve 3 recursion challenges',        icon:'🌀'},
+  // ── Time of day ──────────────────────────────
+  {id:'night_owl',        name:'Night Owl',          desc:'Code past midnight',                  icon:'🦉'},
+  {id:'early_bird',       name:'Early Bird',         desc:'Code before 6am',                     icon:'🐦'},
+  {id:'lunch_coder',      name:'Lunch Coder',        desc:'Solve a challenge between 12–1pm',   icon:'🥪'},
+  // ── Daily ────────────────────────────────────
+  {id:'daily_warrior',    name:'Daily Warrior',      desc:'Complete a daily challenge',          icon:'📅'},
+  {id:'weekly_grind',     name:'Weekly Grind',       desc:'Complete 7 daily challenges',         icon:'📆'},
+  // ── Special ──────────────────────────────────
+  {id:'comeback',         name:'Comeback Kid',       desc:'Solve a challenge after failing 3×',  icon:'💪'},
+  {id:'hint_free',        name:'Hint Free',          desc:'Solve 10 challenges without hints',   icon:'🙈'},
+  {id:'minimalist',       name:'Minimalist',         desc:'Solve a challenge with <10 lines',    icon:'✂️'},
+  {id:'polyglot',         name:'Gopher Polyglot',    desc:'Use 5 different categories',          icon:'🦜'},
+  {id:'collector',        name:'Collector',          desc:'Unlock 10 achievements',              icon:'🎁'},
+];
+
+function openAchievements() {
+  document.getElementById('ach-panel').classList.add('open');
+  const unlockedIds = new Set((player?.achievements||[]).map(a=>a.id));
+  document.getElementById('ach-body').innerHTML = `
+    <div style="margin-bottom:12px;color:var(--text2);font-size:13px">${unlockedIds.size}/${ALL_ACHS.length} unlocked</div>
+    <div class="ach-grid">
+      ${ALL_ACHS.map(a => `
+        <div class="ach-card ${unlockedIds.has(a.id)?'unlocked':'locked'}">
+          <div class="ach-icon">${a.icon}</div>
+          <div class="ach-name">${a.name}</div>
+          <div class="ach-desc">${a.desc}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+// ─── Profile ─────────────────────────────────────────────────────────────────
+function openProfile() {
+  document.getElementById('profile-panel').classList.add('open');
+  document.getElementById('name-input').value = player?.name || '';
+  const s = player;
+  document.getElementById('profile-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-val">${s?.points||0}</div><div class="stat-lbl">Points</div></div>
+    <div class="stat-card"><div class="stat-val">${s?.level||1}</div><div class="stat-lbl">Level</div></div>
+    <div class="stat-card"><div class="stat-val">${s?.streak||0}</div><div class="stat-lbl">Streak</div></div>
+    <div class="stat-card"><div class="stat-val">${(s?.solvedIds||[]).length}</div><div class="stat-lbl">Solved</div></div>
+  `;
+}
+
+async function saveName() {
+  const name = document.getElementById('name-input').value.trim();
+  if (!name) return;
+  player = await fetch(`${API}/player/update`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({id: player.id, name})
+  }).then(r=>r.json());
+  updateHeader();
+  closePanel('profile-panel');
+  toast('success', '✅ Name updated', `Now displaying as "${name}"`);
+}
+
+function openDaily() {
+  if (dailyQ) selectQ(dailyQ.id);
+}
+
+// ─── Header Update ────────────────────────────────────────────────────────────
+function updateHeader() {
+  document.getElementById('hdr-name').textContent = player?.name || 'Gopher';
+  document.getElementById('hdr-pts').textContent = (player?.points||0) + ' pts';
+  document.getElementById('hdr-lvl').textContent = 'Lv.' + (player?.level||1);
+}
+
+// ─── Panels ───────────────────────────────────────────────────────────────────
+function closePanel(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.panel-overlay').forEach(p => {
+  p.addEventListener('click', e => { if (e.target === p) p.classList.remove('open'); });
+});
+
+// ─── Toast ────────────────────────────────────────────────────────────────────
+function toast(type, title, msg) {
+  const icons = { success: '✅', error: '❌', achievement: '🎖' };
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<div class="toast-icon">${icons[type]||'ℹ️'}</div><div class="toast-body"><div class="toast-title">${title}</div><div class="toast-msg">${msg}</div></div>`;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(() => {
+    el.style.animation = 'slideOut 0.3s ease-in forwards';
+    setTimeout(() => el.remove(), 300);
+  }, 3500);
+}
+
+// ─── Start ────────────────────────────────────────────────────────────────────
+init();
+
+</script>
+</body>
+</html>
