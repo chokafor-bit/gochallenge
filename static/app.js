@@ -93,6 +93,8 @@ function initMonaco() {
 }
 
 // ─── Lint ─────────────────────────────────────────────────────────────────────
+let lintErrors = [];
+
 async function lintCode() {
   if (!editor) return;
   const code = editor.getValue();
@@ -103,21 +105,44 @@ async function lintCode() {
       body: JSON.stringify({code})
     });
     const data = await res.json();
-    if (data.errors && data.errors.length > 0) {
-      setLint('error', data.errors.length + ' issue(s)');
+    lintErrors = data.errors || [];
+    if (lintErrors.length > 0) {
+      setLint('error', lintErrors.length + ' issue(s)');
+      showLintErrors(lintErrors);
     } else {
       setLint('ok');
     }
   } catch { setLint('ok'); }
 }
 
+function showLintErrors(errors) {
+  const out = document.getElementById('output-content');
+  out.innerHTML = '<span class="out-error">⚠ Lint errors:</span>\n' +
+    errors.map(e => `<span style="color:var(--red)">${escHtml(e)}</span>`).join('\n');
+}
+
 function setLint(state, msg='') {
   const dot = document.getElementById('lint-dot');
   const txt = document.getElementById('lint-text');
   dot.className = 'lint-dot';
-  if (state === 'error') { dot.classList.add('error'); txt.textContent = msg || 'Errors'; txt.style.color = 'var(--red)'; }
-  else if (state === 'checking') { dot.classList.add('checking'); txt.textContent = 'Checking…'; txt.style.color = 'var(--yellow)'; }
-  else { txt.textContent = 'Clean'; txt.style.color = 'var(--green)'; }
+  if (state === 'error') {
+    dot.classList.add('error');
+    txt.textContent = msg || 'Errors';
+    txt.style.color = 'var(--red)';
+    txt.style.cursor = 'pointer';
+    txt.onclick = () => lintErrors.length && showLintErrors(lintErrors);
+  } else if (state === 'checking') {
+    dot.classList.add('checking');
+    txt.textContent = 'Checking…';
+    txt.style.color = 'var(--yellow)';
+    txt.style.cursor = 'default';
+    txt.onclick = null;
+  } else {
+    txt.textContent = 'Clean';
+    txt.style.color = 'var(--green)';
+    txt.style.cursor = 'default';
+    txt.onclick = null;
+  }
 }
 
 // ─── Questions ───────────────────────────────────────────────────────────────
@@ -422,7 +447,7 @@ function openDaily() {
 
 // ─── Header Update ────────────────────────────────────────────────────────────
 function updateHeader() {
-  document.getElementById('hdr-name').textContent = player?.name || 'World';
+  document.getElementById('hdr-name').textContent = player?.name || 'Gopher';
   document.getElementById('hdr-pts').textContent = (player?.points||0) + ' pts';
   document.getElementById('hdr-lvl').textContent = 'Lv.' + (player?.level||1);
 }
